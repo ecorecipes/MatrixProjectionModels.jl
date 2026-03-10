@@ -1,0 +1,7 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+MatrixProjectionModels = "521f12cc-5854-454d-93a2-8be28ae7cee2"
+ProjectionModels = "33358fd2-7d60-4541-bded-caea801370e0"
+
+[compat]
+Documenter = "1"
