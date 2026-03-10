@@ -1,0 +1,1 @@
+# COMPADRE accessors — stub implementations

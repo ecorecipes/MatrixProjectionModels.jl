@@ -1,0 +1,1 @@
+# COMPADRE operations — stub implementations
