@@ -33,9 +33,12 @@ sol = solve(prob, DirectIteration())
 
 ## Installation
 
+This package is not yet registered in the Julia General registry. Install directly from GitHub (the [ProjectionModels.jl](https://github.com/ecorecipes/ProjectionModels.jl) dependency must be installed first):
+
 ```julia
 using Pkg
-Pkg.add("MatrixProjectionModels")
+Pkg.add(url="https://github.com/ecorecipes/ProjectionModels.jl")
+Pkg.add(url="https://github.com/ecorecipes/MatrixProjectionModels.jl")
 ```
 
 ## Related
