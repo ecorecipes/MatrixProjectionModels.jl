@@ -1,0 +1,269 @@
+# Time-Lagged Matrix Projection Models
+Simon Frost
+
+## Overview
+
+In standard matrix projection models, all transitions act on the current
+population state: $\mathbf{n}(t+1) = \mathbf{A} \cdot \mathbf{n}(t)$.
+However, in many biological systems, some demographic processes depend
+on the population state at earlier time steps. For example, fecundity in
+some monocarpic perennials depends on the size an individual achieved
+one or more years before flowering (Kuss et al. 2008).
+
+A **time-lagged MPM** generalizes the standard model to:
+
+$$\mathbf{n}(t+1) = \mathbf{U} \cdot \mathbf{n}(t) + \mathbf{F} \cdot \mathbf{n}(t - L)$$
+
+where $\mathbf{U}$ is the survival/growth matrix acting on the current
+state and $\mathbf{F}$ is the fecundity matrix acting on the state $L$
+time steps in the past. This is solved via **state augmentation**: the
+population vector is extended to track the full history, converting the
+time-lagged system into a standard Markovian system with a
+block-structured matrix.
+
+## Setup
+
+``` julia
+using MatrixProjectionModels
+using LinearAlgebra
+using Plots
+```
+
+## A 3-Stage Leslie Model
+
+Consider a simple 3-stage Leslie model with survival/growth
+($\mathbf{U}$) and fecundity ($\mathbf{F}$):
+
+``` julia
+U = [0.0 0.0 0.0;
+     0.5 0.0 0.0;
+     0.0 0.3 0.0]
+
+F = [0.0 3.0 1.0;
+     0.0 0.0 0.0;
+     0.0 0.0 0.0]
+
+mpm = MatrixProjectionModel(U, F)
+println("Standard λ = ", round(lambda(mpm), digits=4))
+```
+
+    Standard λ = 1.272
+
+## Creating a Lagged Model
+
+The `LaggedMPM` constructor wraps a standard MPM with lag structure. By
+default, survival ($\mathbf{U}$) acts on the current state (`U_lag=0`)
+and fecundity ($\mathbf{F}$) acts on the previous time step (`F_lag=1`):
+
+``` julia
+lm = LaggedMPM(mpm; F_lag=1)
+println(lm)
+```
+
+    LaggedMPM(3 stages, max_lag=1)
+
+### The Augmented Matrix
+
+The lagged system is converted to a standard Markovian system via state
+augmentation. For a 3-stage model with $L=1$, the augmented state is
+$\tilde{\mathbf{n}}(t) = [\mathbf{n}(t); \mathbf{n}(t-1)]$ and the
+augmented matrix is:
+
+$$\mathbf{A}_{\text{aug}} = \begin{bmatrix} \mathbf{U} & \mathbf{F} \\ \mathbf{I} & \mathbf{0} \end{bmatrix}$$
+
+``` julia
+println("Augmented matrix size: ", size(lm.augmented))
+```
+
+    Augmented matrix size: (6, 6)
+
+``` julia
+stage_labels = ["s1", "s2", "s3", "s1(t-1)", "s2(t-1)", "s3(t-1)"]
+heatmap(stage_labels, stage_labels, lm.augmented,
+    title="Augmented matrix (L=1)",
+    xlabel="From", ylabel="To",
+    color=:viridis, size=(500, 450))
+```
+
+![](12_time_lag_files/figure-commonmark/cell-6-output-1.svg)
+
+The top-left block is $\mathbf{U}$ (current survival), the top-right
+block is $\mathbf{F}$ (lagged fecundity), the bottom-left block is the
+identity (shift current → history), and the bottom-right is zero.
+
+## Eigenanalysis
+
+All standard analysis functions work on the lagged model through the
+augmented matrix:
+
+``` julia
+λ_std = lambda(mpm)
+λ_lag = lambda(lm)
+println("Standard λ:  ", round(λ_std, digits=4))
+println("Lagged λ:    ", round(λ_lag, digits=4))
+```
+
+    Standard λ:  1.272
+    Lagged λ:    1.1763
+
+The time lag reduces the growth rate because fecundity is delayed by one
+time step.
+
+``` julia
+w = stable_distribution(lm)
+println("Stable distribution (augmented, length ", length(w), "):")
+println("  ", round.(w, digits=4))
+```
+
+    Stable distribution (augmented, length 6):
+      [0.3525, 0.1498, 0.0382, 0.2996, 0.1274, 0.0325]
+
+``` julia
+ρ = damping_ratio(lm)
+println("Damping ratio: ", round(ρ, digits=4))
+```
+
+    Damping ratio: 1.0413
+
+## Population Projection
+
+The `MPMProblem` and `DirectIteration` solver handle lagged models
+automatically. The solver maintains a history buffer internally and
+returns only the physical (non-augmented) population state:
+
+``` julia
+n0 = [10.0, 5.0, 2.0]
+prob = MPMProblem(lm, n0, (0, 50))
+sol = solve(prob, DirectIteration())
+
+println("Output dimension: ", length(sol.u[end]), " (physical state)")
+```
+
+    Output dimension: 3 (physical state)
+
+### Total Population Trajectory
+
+``` julia
+total_pop = [sum(u) for u in sol.u]
+plot(sol.t, log.(total_pop),
+    xlabel="Time step", ylabel="log N(t)",
+    title="Population trajectory (lagged model)",
+    label="log N(t)", linewidth=2)
+```
+
+![](12_time_lag_files/figure-commonmark/cell-11-output-1.svg)
+
+### Growth Rate Convergence
+
+The per-step growth rate $\lambda(t)$ converges to the asymptotic value
+from the eigenanalysis of the augmented matrix:
+
+``` julia
+plot(sol.lambdas, xlabel="Time step", ylabel="λ(t)",
+    title="Convergence of growth rate",
+    label="λ(t)", linewidth=2)
+hline!([lambda(lm)], label="Asymptotic λ", linestyle=:dash, color=:red)
+```
+
+![](12_time_lag_files/figure-commonmark/cell-12-output-1.svg)
+
+## Net Reproductive Rate
+
+The net reproductive rate $R_0$ can be computed for lagged models using
+the augmented fundamental matrix approach:
+
+``` julia
+R0 = net_repro_rate(lm)
+println("Net reproductive rate R₀ = ", round(R0, digits=4))
+```
+
+    Net reproductive rate R₀ = 1.65
+
+## Multi-Lag Model (L=2)
+
+For longer delays, set `F_lag=2`. This creates a $9 \times 9$ augmented
+matrix ($3 \times 3$ stages with history depth 2):
+
+``` julia
+lm2 = LaggedMPM(mpm; F_lag=2)
+println(lm2)
+println("Augmented matrix size: ", size(lm2.augmented))
+```
+
+    LaggedMPM(3 stages, max_lag=2)
+    Augmented matrix size: (9, 9)
+
+``` julia
+labels_9 = ["s1", "s2", "s3", "s1(t-1)", "s2(t-1)", "s3(t-1)",
+            "s1(t-2)", "s2(t-2)", "s3(t-2)"]
+heatmap(labels_9, labels_9, lm2.augmented,
+    title="Augmented matrix (L=2)",
+    xlabel="From", ylabel="To",
+    color=:viridis, size=(550, 500))
+```
+
+![](12_time_lag_files/figure-commonmark/cell-15-output-1.svg)
+
+``` julia
+println("λ (L=1): ", round(lambda(lm), digits=4))
+println("λ (L=2): ", round(lambda(lm2), digits=4))
+```
+
+    λ (L=1): 1.1763
+    λ (L=2): 1.1304
+
+Longer delays further reduce the growth rate.
+
+## Kernel Vector Constructor
+
+When the lag structure does not decompose neatly into
+$\mathbf{U}$/$\mathbf{F}$, you can provide the lag kernel vector
+$[\mathbf{K}_0, \mathbf{K}_1, \ldots, \mathbf{K}_L]$ directly:
+
+``` julia
+K0 = U          # transitions at lag 0
+K1 = F          # transitions at lag 1
+lm_vec = LaggedMPM([K0, K1])
+
+println("From kernel vector: λ = ", round(lambda(lm_vec), digits=4))
+println("From MPM constructor: λ = ", round(lambda(lm), digits=4))
+```
+
+    From kernel vector: λ = 1.1763
+    From MPM constructor: λ = 1.1763
+
+## Comparing Standard and Lagged Projections
+
+``` julia
+# Standard model projection
+prob_std = MPMProblem(mpm, n0, (0, 50))
+sol_std = solve(prob_std, DirectIteration())
+total_std = [sum(u) for u in sol_std.u]
+
+# Lagged model projection
+total_lag = [sum(u) for u in sol.u]
+
+plot(sol.t, log.(total_std), label="Standard", linewidth=2,
+    xlabel="Time step", ylabel="log N(t)",
+    title="Standard vs lagged population growth")
+plot!(sol.t, log.(total_lag), label="Lagged (L=1)", linewidth=2, linestyle=:dash)
+```
+
+![](12_time_lag_files/figure-commonmark/cell-18-output-1.svg)
+
+## Summary
+
+In this vignette we:
+
+1.  Constructed a time-lagged MPM using `LaggedMPM(mpm; F_lag=1)`
+2.  Examined the augmented block matrix structure
+    $[\mathbf{U}, \mathbf{F}; \mathbf{I}, \mathbf{0}]$
+3.  Computed eigenanalysis (growth rate, stable distribution, damping
+    ratio) on the augmented system
+4.  Projected population dynamics with `MPMProblem` and
+    `DirectIteration`, observing convergence to the asymptotic $\lambda$
+5.  Computed the net reproductive rate $R_0$ for a lagged model
+6.  Built a multi-lag model ($L=2$) and observed the effect of longer
+    delays
+7.  Used the kernel vector constructor `LaggedMPM([K_0, K_1])` for
+    direct specification

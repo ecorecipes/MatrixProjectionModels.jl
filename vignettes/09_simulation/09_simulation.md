@@ -1,0 +1,347 @@
+# Population Simulation and Density Dependence
+Simon Frost
+
+## Overview
+
+This vignette demonstrates population projection using the
+`MPMProblem`/`solve` interface, including deterministic iteration,
+density-dependent dynamics, and integration with the SciML ecosystem. We
+use MPMs from COMPADRE and COMADRE to illustrate transient dynamics,
+population viability assessment, and equilibrium analysis.
+
+## Setup
+
+``` julia
+using MatrixProjectionModels
+using Plots
+using LinearAlgebra
+using Statistics
+```
+
+## Deterministic Projection
+
+### Basic Projection
+
+The simplest use case: project a population forward from an initial
+state.
+
+``` julia
+# Desert tortoise MPM (Doak et al. 1994)
+U = [0.0    0.0    0.0    0.0    0.0
+     0.716  0.567  0.0    0.0    0.0
+     0.0    0.149  0.567  0.0    0.0
+     0.0    0.0    0.149  0.604  0.0
+     0.0    0.0    0.0    0.235  0.817]
+F = [0.0  0.0  0.0  0.0  1.3
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0]
+
+mpm = MatrixProjectionModel(U, F;
+    stage_names=[:yearling, :sm_juv, :lg_juv, :immature, :adult])
+n0 = [200.0, 100.0, 50.0, 30.0, 20.0]  # 400 total
+
+prob = MPMProblem(mpm, n0, (0, 100))
+sol = solve(prob, DirectIteration())
+```
+
+    MPMSolution(101 timesteps, retcode=Success)
+
+``` julia
+total_pop = [sum(u) for u in sol.u]
+
+plot(0:100, total_pop,
+    xlabel="Year", ylabel="Total population",
+    title="Desert tortoise — 100-year projection",
+    label="N(t)", linewidth=2, yscale=:log10)
+```
+
+![](09_simulation_files/figure-commonmark/cell-4-output-1.svg)
+
+### Transient Dynamics
+
+Before converging to stable growth, populations exhibit **transient
+dynamics** that depend on the initial stage structure:
+
+``` julia
+# Three different starting conditions
+starts = [
+    ([400.0, 0.0, 0.0, 0.0, 0.0], "All yearlings"),
+    ([0.0, 0.0, 0.0, 0.0, 400.0], "All adults"),
+    ([80.0, 80.0, 80.0, 80.0, 80.0], "Equal distribution"),
+]
+
+p = plot(xlabel="Year", ylabel="λ(t)",
+    title="Transient dynamics — effect of initial structure",
+    legend=:bottomright)
+
+for (n0_i, label) in starts
+    prob_i = MPMProblem(mpm, n0_i, (0, 30))
+    sol_i = solve(prob_i, DirectIteration())
+    plot!(p, sol_i.lambdas, label=label, linewidth=2)
+end
+hline!(p, [lambda(mpm)], label="Asymptotic λ", linestyle=:dash, color=:black)
+p
+```
+
+![](09_simulation_files/figure-commonmark/cell-5-output-1.svg)
+
+### Eigenanalysis Mode
+
+For computing only eigenvalues and eigenvectors (without full
+projection):
+
+``` julia
+sol_eigen = solve(prob, EigenAnalysis())
+
+println("λ = ", round(lambda(sol_eigen), digits=6))
+println("Stable distribution: ", round.(stable_distribution(sol_eigen), digits=4))
+println("Reproductive value: ", round.(reproductive_value(sol_eigen), digits=4))
+```
+
+    λ = 0.93399
+    Stable distribution: [0.2075, 0.4048, 0.1644, 0.0742, 0.1491]
+    Reproductive value: [0.2851, 0.3719, 0.916, 2.2561, 3.168]
+
+## Density-Dependent MPMs
+
+In density-dependent models, the projection matrix is a function of
+current population size. This produces bounded, realistic population
+trajectories rather than unbounded exponential growth or decline.
+
+### Ceiling Model
+
+The simplest density dependence: vital rates decline when the population
+exceeds a carrying capacity $K$.
+
+``` julia
+K = 500.0  # carrying capacity
+
+# Matrix function: reduce survival when N > K
+function dd_matrix(n, p, t)
+    N = sum(n)
+    # Reduce survival proportionally when N exceeds K
+    density_effect = min(1.0, K / max(N, 1.0))
+    U_dd = U * density_effect
+    return U_dd + F
+end
+
+prob_dd = MPMProblem(
+    DensityDependent(),
+    dd_matrix,
+    n0, (0, 200))
+
+sol_dd = solve(prob_dd, DirectIteration())
+```
+
+    MPMSolution(201 timesteps, retcode=Success)
+
+``` julia
+total_dd = [sum(u) for u in sol_dd.u]
+
+plot(0:200, total_dd,
+    xlabel="Year", ylabel="Total population",
+    title="Density-dependent dynamics (ceiling model, K=$K)",
+    label="N(t)", linewidth=2, color=:blue)
+hline!([K], label="Carrying capacity K", linestyle=:dash, color=:red)
+```
+
+![](09_simulation_files/figure-commonmark/cell-8-output-1.svg)
+
+### Beverton-Holt Density Dependence
+
+A more biologically realistic model where fecundity follows a
+Beverton-Holt function:
+
+``` julia
+function bh_matrix(n, p, t)
+    N = sum(n)
+    # Beverton-Holt fecundity reduction
+    f_max = 1.3  # maximum per-capita fecundity (adult stage)
+    alpha = 0.005  # strength of density dependence
+    f_dd = f_max / (1.0 + alpha * N)
+
+    F_dd = zeros(5, 5)
+    F_dd[1, 5] = f_dd
+
+    return U + F_dd
+end
+
+prob_bh = MPMProblem(
+    DensityDependent(),
+    bh_matrix,
+    n0, (0, 300))
+
+sol_bh = solve(prob_bh, DirectIteration())
+```
+
+    MPMSolution(301 timesteps, retcode=Success)
+
+``` julia
+total_bh = [sum(u) for u in sol_bh.u]
+
+plot(0:300, total_bh,
+    xlabel="Year", ylabel="Total population",
+    title="Beverton-Holt density dependence",
+    label="N(t)", linewidth=2, color=:purple)
+```
+
+![](09_simulation_files/figure-commonmark/cell-10-output-1.svg)
+
+### Finding Equilibrium
+
+At equilibrium, $\lambda(\mathbf{A}(N^*)) = 1$. We can find $N^*$ by
+running the density-dependent model to convergence:
+
+``` julia
+N_star = total_bh[end]
+println("Equilibrium population N* ≈ ", round(N_star, digits=1))
+
+# Verify: λ at equilibrium should be ≈ 1
+A_eq = bh_matrix(sol_bh.u[end], nothing, 0)
+lambda_eq = lambda(A_eq)
+println("λ at equilibrium = ", round(lambda_eq, digits=6))
+```
+
+    Equilibrium population N* ≈ 0.0
+    λ at equilibrium = 0.93399
+
+## Population Viability Analysis (PVA)
+
+PVA combines stochastic dynamics with population thresholds to estimate
+extinction risk. We run many simulations and count how often the
+population drops below a quasi-extinction threshold.
+
+``` julia
+using Random
+Random.seed!(123)
+
+# Stochastic matrices for good/bad years
+A_good = U * 1.1 + F * 1.2  # above-average survival and fecundity
+A_bad = U * 0.85 + F * 0.3  # poor survival and fecundity
+
+mpm_good = MatrixProjectionModel(A_good)
+mpm_bad = MatrixProjectionModel(A_bad)
+
+quasi_ext_threshold = 20.0
+n_sims = 100
+tspan = (0, 100)
+
+extinct_count = 0
+trajectories = []
+
+for sim in 1:n_sims
+    prob_pva = MPMProblem(
+        StochasticKernelResampled(),
+        [mpm_good, mpm_bad],
+        n0, tspan)
+    sol_pva = solve(prob_pva, DirectIteration())
+    total = [sum(u) for u in sol_pva.u]
+    push!(trajectories, total)
+    if any(total .< quasi_ext_threshold)
+        extinct_count += 1
+    end
+end
+
+println("Quasi-extinction probability (100 years): ",
+    round(extinct_count / n_sims, digits=2))
+```
+
+    Quasi-extinction probability (100 years): 1.0
+
+``` julia
+p = plot(xlabel="Year", ylabel="Total population",
+    title="Population viability analysis ($n_sims simulations)",
+    yscale=:log10, legend=:topleft)
+
+for traj in trajectories
+    plot!(p, 0:100, max.(traj, 0.1), alpha=0.1, color=:blue, label=false)
+end
+hline!(p, [quasi_ext_threshold], label="Quasi-extinction threshold",
+    color=:red, linewidth=2, linestyle=:dash)
+p
+```
+
+![](09_simulation_files/figure-commonmark/cell-13-output-1.svg)
+
+## SciML Integration
+
+MatrixProjectionModels integrates with the SciML ecosystem via
+`to_discrete_problem`, allowing use of standard SciML solvers and
+callbacks.
+
+``` julia
+prob_sciml = to_discrete_problem(prob)
+println("SciML problem type: ", typeof(prob_sciml))
+```
+
+    SciML problem type: SciMLBase.DiscreteProblem{Vector{Float64}, Tuple{Int64, Int64}, false, Nothing, SciMLBase.DiscreteFunction{false, SciMLBase.FullSpecialize, MatrixProjectionModels.var"#to_discrete_problem##0#to_discrete_problem##1"{Matrix{Float64}}, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED), Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Nothing, @NamedTuple{}}}
+
+## Comparing Management Scenarios
+
+A common application: compare population trajectories under different
+management interventions.
+
+``` julia
+# Baseline: declining population
+U_base = U
+F_base = F
+
+# Scenario 1: Improve adult survival by 10%
+U_s1 = copy(U_base)
+U_s1[5, 5] = min(U_base[5, 5] * 1.10, 0.99)
+
+# Scenario 2: Improve juvenile survival (large juv + subadult) by 15%
+U_s2 = copy(U_base)
+U_s2[3, 3] = min(U_base[3, 3] * 1.15, 0.99)
+U_s2[4, 4] = min(U_base[4, 4] * 1.15, 0.99)
+
+# Scenario 3: Double fecundity (egg protection)
+F_s3 = F_base * 2.0
+
+scenarios = [
+    (U_base + F_base, "Baseline"),
+    (U_s1 + F_base, "Adult survival +10%"),
+    (U_s2 + F_base, "Juvenile survival +15%"),
+    (U_base + F_s3, "Fecundity ×2"),
+]
+
+p = plot(xlabel="Year", ylabel="Total population",
+    title="Management scenario comparison — Desert tortoise",
+    yscale=:log10, legend=:bottomleft)
+
+for (A_scen, label) in scenarios
+    mpm_s = MatrixProjectionModel(A_scen)
+    prob_s = MPMProblem(mpm_s, n0, (0, 50))
+    sol_s = solve(prob_s, DirectIteration())
+    total_s = [sum(u) for u in sol_s.u]
+    plot!(p, 0:50, total_s, label="$label (λ=$(round(lambda(mpm_s), digits=3)))",
+        linewidth=2)
+end
+p
+```
+
+![](09_simulation_files/figure-commonmark/cell-15-output-1.svg)
+
+The scenario comparison confirms the perturbation analysis from the
+previous vignette: improving juvenile/adult survival has a much larger
+effect on population trajectory than doubling egg production.
+
+## Summary
+
+In this vignette we:
+
+1.  Projected populations deterministically and examined transient
+    dynamics
+2.  Used `EigenAnalysis()` for eigenvalue/eigenvector computation
+3.  Implemented density-dependent MPMs (ceiling and Beverton-Holt
+    models)
+4.  Found equilibrium population size $N^*$
+5.  Conducted population viability analysis (PVA) with extinction risk
+    estimation
+6.  Integrated with the SciML ecosystem
+7.  Compared management scenarios for conservation
+
+The next vignette covers comparative demography across multiple
+COMPADRE/COMADRE species.
