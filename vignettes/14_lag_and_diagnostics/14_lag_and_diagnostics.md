@@ -1,0 +1,179 @@
+# Time-Lag Models and Spectral Diagnostics
+Simon Frost
+
+## Overview
+
+Many demographic processes occur with a **lag** — e.g. seeds produced in
+year $t$ germinate in year $t+1$ or later. This vignette demonstrates
+the augmented-matrix representation used to lower lagged systems to a
+standard matrix model, and the spectral / diagnostic helpers re-exported
+from `StructuredPopulationCore`.
+
+## Setup
+
+``` julia
+using MatrixProjectionModels
+using LinearAlgebra
+```
+
+## Lag structure
+
+`TimeLagStructure(max_lag)` records the maximum lag for which kernels
+are provided.
+
+``` julia
+ts = TimeLagStructure(2)
+println(ts)
+```
+
+    TimeLagStructure(max_lag=2)
+
+## Augmenting kernels
+
+Suppose survival/growth happens with lag 0 and reproduction is delayed
+by one year:
+
+``` julia
+P = [0.4 0.0;
+     0.5 0.6]
+F = [0.0 2.0;
+     0.0 0.0]
+
+K_aug = expand_lag_matrix([P, F], TimeLagStructure(1))
+println("augmented kernel size = ", size(K_aug))
+```
+
+    augmented kernel size = (4, 4)
+
+The convenience two-argument form is identical:
+
+``` julia
+K2 = expand_lag_matrix(P, F)
+println("matches two-arg form = ", K_aug == K2)
+```
+
+    matches two-arg form = true
+
+## Recovering components
+
+`extract_lag_components` pulls the lag kernels back out of the augmented
+matrix. The second positional argument `m` is the dimension of the
+original state.
+
+``` julia
+comp = extract_lag_components(K_aug, 2, TimeLagStructure(1))
+println("kernels recovered    = ", length(comp.kernels))
+println("matches original P   = ", comp.kernels[1] == P)
+println("matches original F   = ", comp.kernels[2] == F)
+```
+
+    kernels recovered    = 2
+    matches original P   = true
+    matches original F   = true
+
+## Augmenting an initial population
+
+`augment_population` creates a stacked initial vector for the augmented
+system; `extract_population` does the inverse (returning the **current**
+state).
+
+``` julia
+n0 = [10.0, 5.0]
+n_aug = augment_population(n0, TimeLagStructure(1))
+println("n_aug = ", n_aug)
+println("recovered current population = ", extract_population(n_aug, 2))
+```
+
+    n_aug = [10.0, 5.0, 10.0, 5.0]
+    recovered current population = [10.0, 5.0]
+
+## Lagged demographic metrics
+
+Net reproductive rate $R_0$ and generation time can be computed directly
+from the lag kernels.
+
+``` julia
+R0  = net_repro_rate_lagged(P, F)
+GT  = generation_time_lagged(P, F)
+println("R_0 (lagged)            = ", round(R0, digits=4))
+println("Generation time (lagged) = ", round(GT, digits=4))
+```
+
+    R_0 (lagged)            = 4.1667
+    Generation time (lagged) = 4.6135
+
+## Spectral analysis
+
+`eigenanalysis_power` is a power-iteration solver that returns
+`(lambda, stable_dist, repro_value)`. This is faster than dense
+`eigvals` for large primitive matrices and is what `solve` calls
+internally.
+
+``` julia
+ea = eigenanalysis_power(K_aug)
+println("lambda      = ", round(ea.lambda, digits=4))
+println("stable_dist = ", round.(ea.stable_dist, digits=4))
+println("repro_value = ", round.(ea.repro_value, digits=4))
+```
+
+    lambda      = 1.3625
+    stable_dist = [0.3483, 0.2284, 0.2556, 0.1676]
+    repro_value = [0.9671, 1.8616, 0.0, 1.4195]
+
+## Mean kernel from a solution
+
+`mean_kernel` (a.k.a. `mean_matrix` for matrix backends) averages the
+realised kernels across a stochastic / time-varying solution. For a
+deterministic constant-coefficient model the mean kernel equals the
+underlying matrix.
+
+``` julia
+prob = MPMProblem(P + F, [10.0, 5.0], (0, 5))
+sol  = solve(prob)
+A_mean = mean_kernel(sol)
+println("mean_kernel size = ", size(A_mean))
+println("mean_kernel ≈ P+F = ", A_mean ≈ P + F)
+println("mean_matrix ≈ P+F = ", mean_matrix(sol) ≈ P + F)
+```
+
+    mean_kernel size = (2, 2)
+    mean_kernel ≈ P+F = true
+    mean_matrix ≈ P+F = true
+
+## Irreducibility check
+
+A matrix is irreducible iff all stages are reachable from all others.
+
+``` julia
+println("(P+F) irreducible      = ", is_irreducible(P + F))
+println("identity(2) irreducible = ", is_irreducible(Matrix{Float64}(I, 2, 2)))
+```
+
+    (P+F) irreducible      = true
+    identity(2) irreducible = false
+
+## Trapezoidal area and entropy
+
+Two general-purpose utilities re-exported from the core package:
+
+``` julia
+xs = 0:0.1:π
+ys = sin.(xs)
+println("∫₀^π sin x dx ≈ ", round(area_under_curve(collect(xs), ys), digits=4))
+
+H_age = entropy_k_age(P)
+println("entropy_k_age (Keyfitz, age model) = ", round(H_age, digits=4))
+```
+
+    ∫₀^π sin x dx ≈ 1.9975
+    entropy_k_age (Keyfitz, age model) = 0.5751
+
+## Summary
+
+- `TimeLagStructure`, `expand_lag_matrix`, `extract_lag_components`,
+  `augment_population`, `extract_population` form the lag-lowering
+  toolkit.
+- `net_repro_rate_lagged` and `generation_time_lagged` give lag-aware
+  demographic metrics.
+- `eigenanalysis_power`, `mean_kernel`, `mean_matrix`, `is_irreducible`,
+  `area_under_curve`, and `entropy_k_age` are the diagnostic helpers.
