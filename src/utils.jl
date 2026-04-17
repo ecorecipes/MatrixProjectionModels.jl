@@ -1,6 +1,6 @@
 """
 Utility functions specific to MatrixProjectionModels.jl
-area_under_curve comes from ProjectionModels.
+area_under_curve comes from StructuredPopulationCore.
 """
 
 """

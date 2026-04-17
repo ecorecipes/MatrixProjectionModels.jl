@@ -350,6 +350,6 @@ build MPMs:
 5.  **Robust**: validates stage names, sums duplicate entries, promotes
     numeric types
 
-The next vignette in the CategoricalProjectionModels.jl package extends
+The next vignette in the CategoricalPopulationDynamics.jl package extends
 this idea to **valued projection nets**, which combine categorical
 structure with sparse numeric data.

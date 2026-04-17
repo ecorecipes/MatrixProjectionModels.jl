@@ -9,6 +9,7 @@ using Statistics
     include("test_analysis.jl")
     include("test_properties.jl")
     include("test_solve.jl")
+    include("test_coupled.jl")
     include("test_leslie.jl")
     include("test_lefkovitch.jl")
     include("test_mortality_models.jl")
@@ -21,4 +22,5 @@ using Statistics
     include("test_transformation.jl")
     include("test_transitions.jl")
     include("test_time_lag.jl")
+    include("test_pbdm_migrations.jl")
 end

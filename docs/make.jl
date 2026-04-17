@@ -1,9 +1,9 @@
 using Documenter
 using MatrixProjectionModels
-using ProjectionModels
+using StructuredPopulationCore
 
 makedocs(;
-    modules = [MatrixProjectionModels, ProjectionModels],
+    modules = [MatrixProjectionModels, StructuredPopulationCore],
     warnonly = true,
     authors = "Simon Frost",
     sitename = "MatrixProjectionModels.jl",

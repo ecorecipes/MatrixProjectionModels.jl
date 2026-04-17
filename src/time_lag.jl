@@ -84,13 +84,13 @@ function Base.show(io::IO, lm::LaggedMPM)
     print(io, "LaggedMPM($(n) stages, max_lag=$L)")
 end
 
-# Analysis dispatches — extend ProjectionModels functions
-ProjectionModels.lambda(lm::LaggedMPM) = lambda(lm.augmented)
-ProjectionModels.stable_distribution(lm::LaggedMPM) = stable_distribution(lm.augmented)
-ProjectionModels.reproductive_value(lm::LaggedMPM) = reproductive_value(lm.augmented)
-ProjectionModels.sensitivity(lm::LaggedMPM) = sensitivity(lm.augmented)
-ProjectionModels.elasticity(lm::LaggedMPM) = elasticity(lm.augmented)
-ProjectionModels.damping_ratio(lm::LaggedMPM) = damping_ratio(lm.augmented)
+# Analysis dispatches — extend StructuredPopulationCore functions
+StructuredPopulationCore.lambda(lm::LaggedMPM) = lambda(lm.augmented)
+StructuredPopulationCore.stable_distribution(lm::LaggedMPM) = stable_distribution(lm.augmented)
+StructuredPopulationCore.reproductive_value(lm::LaggedMPM) = reproductive_value(lm.augmented)
+StructuredPopulationCore.sensitivity(lm::LaggedMPM) = sensitivity(lm.augmented)
+StructuredPopulationCore.elasticity(lm::LaggedMPM) = elasticity(lm.augmented)
+StructuredPopulationCore.damping_ratio(lm::LaggedMPM) = damping_ratio(lm.augmented)
 
 """
     net_repro_rate(lm::LaggedMPM; kwargs...)
