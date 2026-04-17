@@ -142,7 +142,7 @@ end
                 ReproductionRule(
                     :wild,
                     (sys, day, p) -> 0.15 * sum(sys[:wild].population[p.layouts[:wild][:adult]]);
-                    name = :rule_1,
+                    name = :ReproductionRule,
                 ),
             ],
             events = [
@@ -163,8 +163,8 @@ end
             ref_sol.component_stage_totals[:sterile] atol=1e-10
         @test mpm_sol.observables[:total][2:end] ≈ ref_sol.observables[:total] atol=1e-10
         @test mpm_sol.event_log == ref_sol.event_log
-        @test getproperty.(mpm_sol.rule_log[:rule_1], :offspring) ≈
-            getproperty.(ref_sol.rule_log[:rule_1], :offspring) atol=1e-10
+        @test getproperty.(mpm_sol.rule_log[:ReproductionRule], :offspring) ≈
+            getproperty.(ref_sol.rule_log[:ReproductionRule], :offspring) atol=1e-10
     end
 
     @testset "Exact hybrid allocation migration" begin
