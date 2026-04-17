@@ -1,6 +1,6 @@
 """
 Matrix properties specific to MatrixProjectionModels.
-is_irreducible, is_primitive, is_ergodic come from ProjectionModels.
+is_irreducible, is_primitive, is_ergodic come from StructuredPopulationCore.
 """
 
 """
@@ -29,8 +29,8 @@ function is_leslie(A::AbstractMatrix)
     return true
 end
 
-# MatrixProjectionModel dispatches — extend ProjectionModels functions
-ProjectionModels.is_irreducible(m::MatrixProjectionModel) = is_irreducible(m.A)
-ProjectionModels.is_primitive(m::MatrixProjectionModel) = is_primitive(m.A)
-ProjectionModels.is_ergodic(m::MatrixProjectionModel) = is_ergodic(m.A)
+# MatrixProjectionModel dispatches — extend StructuredPopulationCore functions
+StructuredPopulationCore.is_irreducible(m::MatrixProjectionModel) = is_irreducible(m.A)
+StructuredPopulationCore.is_primitive(m::MatrixProjectionModel) = is_primitive(m.A)
+StructuredPopulationCore.is_ergodic(m::MatrixProjectionModel) = is_ergodic(m.A)
 is_leslie(m::MatrixProjectionModel) = is_leslie(m.A)

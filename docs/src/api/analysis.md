@@ -1,6 +1,6 @@
 # Analysis
 
-Functions for eigenanalysis and derived demographic quantities. These are re-exported from [ProjectionModels.jl](https://github.com/ecorecipes/ProjectionModels.jl).
+Functions for eigenanalysis and derived demographic quantities. These are re-exported from [StructuredPopulationCore.jl](https://github.com/ecorecipes/StructuredPopulationCore.jl).
 
 ## Eigenanalysis
 

@@ -37,13 +37,13 @@ This package is not yet registered in the Julia General registry. Install direct
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/ecorecipes/ProjectionModels.jl")
+Pkg.add(url="https://github.com/ecorecipes/StructuredPopulationCore.jl")
 Pkg.add(url="https://github.com/ecorecipes/MatrixProjectionModels.jl")
 ```
 
 ## Related Packages
 
-- [ProjectionModels.jl](https://github.com/ecorecipes/ProjectionModels.jl) -- shared abstractions for projection models
+- [StructuredPopulationCore.jl](https://github.com/ecorecipes/StructuredPopulationCore.jl) -- shared abstractions for projection models
 - [IntegralProjectionModels.jl](https://github.com/ecorecipes/IntegralProjectionModels.jl) -- continuous-state integral projection models
-- [CategoricalProjectionModels.jl](https://github.com/ecorecipes/CategoricalProjectionModels.jl) -- categorical/functorial framework
+- [CategoricalPopulationDynamics.jl](https://github.com/ecorecipes/CategoricalPopulationDynamics.jl) -- categorical/functorial framework
 - [COMPADRE](https://compadre-db.org/) -- Plant Matrix Database

@@ -3,7 +3,7 @@ module MatrixProjectionModels
 using CommonSolve
 using Distributions
 using LinearAlgebra
-using ProjectionModels
+using StructuredPopulationCore
 using Random
 using RecipesBase
 using SciMLBase
@@ -11,14 +11,14 @@ using Statistics
 
 # --- Layer 1: Utility functions ---
 include("utils.jl")
-# area_under_curve re-exported from ProjectionModels
+# area_under_curve re-exported from StructuredPopulationCore
 
 # --- Layer 2: Core types ---
 include("types.jl")
 export StageClassType, ActiveStage, PropaguleStage, DormantStage
 export StageClass, MatrixProjectionModel, n_stages
 export AbstractMPMStructure, LeslieMPM, LefkovitchMPM
-# Re-export shared types from ProjectionModels
+# Re-export shared types from StructuredPopulationCore
 export AbstractProjectionStructure
 export AbstractDensityDependence, DensityIndependent, DensityDependent
 export AbstractStochasticity, Deterministic, StochasticKernelResampled, StochasticParameterResampled
@@ -32,9 +32,29 @@ include("solve.jl")
 using CommonSolve: solve
 export solve, MPMSolution
 
-# --- Layer 4: Analysis ---
+# --- Layer 4: Coupled/stateful discrete systems ---
+include("coupled.jl")
+export PopulationComponent, PopulationSystem
+export get_state, set_state!, has_state
+export total_population, component_total, component_totals
+export by_species, by_type, by_patch
+export inject!, remove_fraction!
+export PriorityAllocationPool, allocate, allocation_stress, supply_demand_index
+export AbstractDailySubstep, apply_substep!
+export StateUpdateSubstep, CustomSubstep
+export StageFlux, StageTransfer, RuleEffect
+export AbstractTransitionRule, AbstractScheduledEvent
+export apply_rule, apply_event!
+export TransferRule, ReproductionRule, MortalityRule, CustomRule
+export PulseRelease, SingleDayRelease, SprayEvent, CustomEvent
+export Observable
+export CoupledMPMProblem, CoupledMPMSolution
+export StateDependentMPMProblem, StateDependentMPMSolution
+export HybridMPMProblem, HybridMPMSolution
+
+# --- Layer 5: Analysis ---
 include("analysis.jl")
-# Re-export shared analysis from ProjectionModels
+# Re-export shared analysis from StructuredPopulationCore
 export AbstractProjectionSolution
 export eigenanalysis_power, eigenanalysis_full
 export lambda, stable_distribution, reproductive_value
@@ -42,11 +62,11 @@ export sensitivity, elasticity, damping_ratio
 export stochastic_growth_rate, mean_kernel, mean_matrix
 export area_under_curve
 
-# --- Layer 5: Matrix properties ---
+# --- Layer 6: Matrix properties ---
 include("properties.jl")
 export is_ergodic, is_irreducible, is_primitive, is_leslie
 
-# --- Layer 6: Construction (mpmsim) ---
+# --- Layer 7: Construction (mpmsim) ---
 include("construction/mortality_models.jl")
 export AbstractMortalityModel
 export GompertzMortality, GompertzMakehamMortality, ExponentialMortality
@@ -76,14 +96,14 @@ export add_mpm_error
 include("construction/error_estimation.jl")
 export calculate_errors, compute_ci
 
-# --- Layer 7: Life tables ---
+# --- Layer 8: Life tables ---
 include("life_tables/conversions.jl")
 export lx_to_px, lx_to_hx, px_to_lx, px_to_hx, hx_to_lx, hx_to_px
 
 include("life_tables/age_from_stage.jl")
 export mpm_to_lx, mpm_to_px, mpm_to_hx, mpm_to_mx, mpm_to_table
 
-# --- Layer 8: Vital rates ---
+# --- Layer 9: Vital rates ---
 include("vital_rates/extraction.jl")
 export vr_vec_survival, vr_vec_growth, vr_vec_shrinkage, vr_vec_stasis
 export vr_vec_reproduction, vr_vec_dorm_enter, vr_vec_dorm_exit
@@ -91,7 +111,7 @@ export vr_vec_reproduction, vr_vec_dorm_enter, vr_vec_dorm_exit
 include("vital_rates/averaging.jl")
 export vr_survival, vr_growth, vr_shrinkage, vr_stasis, vr_fecundity
 
-# --- Layer 9: Life history traits ---
+# --- Layer 10: Life history traits ---
 include("life_history/life_expectancy.jl")
 export life_expect_mean, life_expect_var
 
@@ -113,7 +133,7 @@ export entropy_k, entropy_k_age, entropy_k_stage, entropy_d
 include("life_history/shape.jl")
 export shape_surv, shape_rep
 
-# --- Layer 10: Perturbation analysis ---
+# --- Layer 11: Perturbation analysis ---
 include("perturbation/matrix_perturbation.jl")
 export perturb_matrix
 
@@ -126,7 +146,7 @@ export perturb_trans
 include("perturbation/stochastic_perturbation.jl")
 export perturb_stochastic
 
-# --- Layer 11: Transformation ---
+# --- Layer 12: Transformation ---
 include("transformation/stages.jl")
 export repro_stages, standard_stages, name_stages
 
@@ -139,22 +159,22 @@ export mpm_collapse
 include("transformation/standardize.jl")
 export mpm_standardize, mpm_rearrange
 
-# --- Layer 12: Time-lagged models ---
+# --- Layer 13: Time-lagged models ---
 include("time_lag.jl")
 export LaggedMPM
-# Re-export time-lag functions from ProjectionModels
+# Re-export time-lag functions from StructuredPopulationCore
 export TimeLagStructure, expand_lag_matrix, extract_lag_components
 export augment_population, extract_population
 export net_repro_rate_lagged, generation_time_lagged
 
-# --- Layer 13: SciML interface ---
+# --- Layer 14: SciML interface ---
 include("sciml_interface.jl")
 export to_discrete_problem
 
-# --- Layer 14: Plotting ---
+# --- Layer 15: Plotting ---
 include("plotting.jl")
 
-# --- Layer 15: COMPADRE extension stubs ---
+# --- Layer 16: COMPADRE extension stubs ---
 include("compadre_stubs.jl")
 export AbstractCompadreDB
 export cdb_fetch, cdb_load, cdb_save

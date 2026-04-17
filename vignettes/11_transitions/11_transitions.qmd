@@ -261,4 +261,4 @@ The sparse transition constructors provide a concise, readable way to build MPMs
 4. **Compatible**: produces standard `MatrixProjectionModel` objects — all analysis functions work as-is
 5. **Robust**: validates stage names, sums duplicate entries, promotes numeric types
 
-The next vignette in the CategoricalProjectionModels.jl package extends this idea to **valued projection nets**, which combine categorical structure with sparse numeric data.
+The next vignette in the CategoricalPopulationDynamics.jl package extends this idea to **valued projection nets**, which combine categorical structure with sparse numeric data.

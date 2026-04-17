@@ -209,4 +209,4 @@ struct LeslieMPM <: AbstractMPMStructure end
 struct LefkovitchMPM <: AbstractMPMStructure end
 
 # Density dependence, stochasticity, and algorithm types are
-# imported from ProjectionModels via `using ProjectionModels`
+# imported from StructuredPopulationCore via `using StructuredPopulationCore`
