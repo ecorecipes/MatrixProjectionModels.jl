@@ -1,0 +1,154 @@
+---
+title: "Markov Environment Switching"
+author: "Simon Frost"
+format:
+  commonmark:
+    variant: -raw_html
+    wrap: none
+engine: julia
+---
+
+## Overview
+
+Many populations experience temporally autocorrelated environments — good years tend to be followed by good years, and drought clusters. A **Markov environment** models this by switching between discrete environmental states according to a transition probability matrix.
+
+This vignette demonstrates `MarkovEnvironment` and `project_markov()` for stochastic MPM projections with correlated environmental variation.
+
+## Setup
+
+```{julia}
+using MatrixProjectionModels
+using LinearAlgebra
+using Plots
+```
+
+## Defining a Markov Environment
+
+A `MarkovEnvironment` is defined by a row-stochastic transition matrix $P$ where $P_{ij}$ is the probability of transitioning from environment $i$ to environment $j$.
+
+```{julia}
+# Three environments: wet, normal, dry
+# Wet → wet (0.5), normal (0.4), dry (0.1)
+# Normal → wet (0.2), normal (0.6), dry (0.2)
+# Dry → wet (0.1), normal (0.3), dry (0.6)
+P = [0.5 0.4 0.1;
+     0.2 0.6 0.2;
+     0.1 0.3 0.6]
+
+env = MarkovEnvironment(P)
+println("Transition matrix:")
+display(P)
+println("\nStationary distribution:")
+println("  Wet:    $(round(env.stationary_distribution[1], digits=3))")
+println("  Normal: $(round(env.stationary_distribution[2], digits=3))")
+println("  Dry:    $(round(env.stationary_distribution[3], digits=3))")
+```
+
+## Environment-Specific Matrices
+
+Each environment has its own projection matrix reflecting conditions:
+
+```{julia}
+# Perennial plant: juvenile → adult → flowering
+A_wet = [0.0 0.0 6.0;
+         0.7 0.3 0.0;
+         0.0 0.5 0.8]
+
+A_normal = [0.0 0.0 4.0;
+            0.5 0.2 0.0;
+            0.0 0.4 0.7]
+
+A_dry = [0.0 0.0 2.0;
+         0.3 0.1 0.0;
+         0.0 0.3 0.5]
+
+kernels = [A_wet, A_normal, A_dry]
+for (name, A) in zip(["Wet", "Normal", "Dry"], kernels)
+    println("λ($name) = $(round(lambda(A), digits=3))")
+end
+```
+
+## Simulating Environment Sequences
+
+```{julia}
+seq = simulate_environments(env, 100)
+println("First 30 environment states:")
+println(seq[1:30])
+println("\nEmpirical frequencies:")
+for (i, name) in enumerate(["Wet", "Normal", "Dry"])
+    println("  $name: $(round(count(==(i), seq)/length(seq), digits=3))")
+end
+```
+
+## Stochastic Projection
+
+```{julia}
+n0 = [50.0, 30.0, 20.0]
+result = project_markov(kernels, env, n0, 100; n_reps=200)
+
+println("Projection complete: $(size(result.trajectories, 1)) steps × $(size(result.trajectories, 2)) replicates")
+```
+
+## Visualizing Trajectories
+
+```{julia}
+plot(title="Population under Markov Environmental Switching",
+     xlabel="Time", ylabel="Total population",
+     legend=false)
+for rep in 1:min(30, size(result.trajectories, 2))
+    plot!(result.trajectories[:, rep], alpha=0.3, color=:steelblue)
+end
+plot!(mean(result.trajectories, dims=2)[:], color=:black, lw=3, label="Mean")
+```
+
+## Stochastic Growth Rate
+
+```{julia}
+# Compute log growth rates from trajectories
+final_pops = result.trajectories[end, :]
+initial_pop = sum(n0)
+T_steps = size(result.trajectories, 1) - 1
+log_lambdas = log.(final_pops ./ initial_pop) ./ T_steps
+mean_log_lambda = mean(log_lambdas)
+println("Stochastic log growth rate: $(round(mean_log_lambda, digits=4))")
+println("Stochastic λ_s: $(round(exp(mean_log_lambda), digits=4))")
+```
+
+## Comparison: Markov vs IID Environments
+
+Autocorrelation in environments can either help or hurt populations. Let's compare:
+
+```{julia}
+# IID environment (each year drawn independently from stationary distribution)
+P_iid = repeat(env.stationary_distribution', 3)  # all rows identical
+env_iid = MarkovEnvironment(P_iid)
+
+result_iid = project_markov(kernels, env_iid, n0, 100; n_reps=200)
+
+# Strongly autocorrelated
+P_strong = [0.8 0.15 0.05;
+            0.1 0.8  0.1;
+            0.05 0.15 0.8]
+env_strong = MarkovEnvironment(P_strong)
+result_strong = project_markov(kernels, env_strong, n0, 100; n_reps=200)
+
+for (name, res) in [("IID", result_iid), ("Moderate autocorr", result), ("Strong autocorr", result_strong)]
+    final = res.trajectories[end, :]
+    log_λ = mean(log.(final ./ initial_pop) ./ T_steps)
+    println("$name: log(λ_s) = $(round(log_λ, digits=4))")
+end
+```
+
+## Quasi-Extinction Under Different Scenarios
+
+```{julia}
+for (name, res) in [("IID", result_iid), ("Moderate", result), ("Strong", result_strong)]
+    qe = quasi_extinction(res.trajectories; threshold=5.0)
+    println("$name: P(ext) = $(round(qe.prob_extinct, digits=3))")
+end
+```
+
+## References
+
+- Tuljapurkar, S. (1990) *Population Dynamics in Variable Environments*. Springer.
+- Caswell, H. (2001) *Matrix Population Models*, Ch. 14. Sinauer.
