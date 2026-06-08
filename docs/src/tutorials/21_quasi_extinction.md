@@ -1,0 +1,116 @@
+# Quasi-Extinction Analysis
+
+## Overview
+
+Quasi-extinction analysis assesses the risk that a population will fall below a critical threshold size. This is a key tool in conservation biology for evaluating population viability under stochastic environmental variation.
+
+MatrixProjectionModels.jl provides `quasi_extinction()` to compute extinction risk metrics from stochastic projection output.
+
+## Setup
+
+```@example mpm
+using MatrixProjectionModels
+using Plots
+```
+
+## Example: Declining Population
+
+Consider a 3-stage population with environmental stochasticity — the "good year" and "bad year" matrices produce variation in population trajectory.
+
+```@example mpm
+A_good = [0.0 0.0 4.5; 0.6 0.0 0.0; 0.0 0.5 0.7]
+A_bad  = [0.0 0.0 2.0; 0.3 0.0 0.0; 0.0 0.4 0.5]
+
+println("λ good = ", round(lambda(A_good), digits=3))
+println("λ bad  = ", round(lambda(A_bad), digits=3))
+println("λ mean = ", round(lambda((A_good .+ A_bad) ./ 2), digits=3))
+```
+
+## Stochastic Projection with Markov Environment
+
+We use `MarkovEnvironment` and `project_markov()` to generate population trajectories with correlated environmental switching:
+
+```@example mpm
+# Bad years tend to cluster (autocorrelation)
+P = [0.7 0.3; 0.4 0.6]
+env = MarkovEnvironment(P)
+println("Stationary distribution: ", round.(env.stationary_distribution, digits=3))
+println("  ($(round(env.stationary_distribution[1]*100))% good years, $(round(env.stationary_distribution[2]*100))% bad years)")
+
+# Initial population
+n0 = [100.0, 50.0, 30.0]
+
+# Project 50 time steps, 500 replicates
+result = project_markov([A_good, A_bad], env, n0, 50; n_reps=500)
+trajectories = result.trajectories
+println("\nProjection: $(size(trajectories, 1)) time steps × $(size(trajectories, 2)) replicates")
+```
+
+## Quasi-Extinction Analysis
+
+```@example mpm
+# Threshold: population considered quasi-extinct below 10 individuals
+qe = quasi_extinction(trajectories; threshold=10.0)
+
+println("Quasi-extinction results (threshold = 10):")
+println("  P(extinction by t=50) = ", round(qe.prob_extinct, digits=3))
+println("  Mean time to extinction = ", round(qe.mean_time_to_extinction, digits=1), " time steps")
+```
+
+## Cumulative Extinction Risk Curve
+
+The cumulative risk curve shows how extinction probability accumulates over time:
+
+```@example mpm
+plot(1:length(qe.cumulative_risk), qe.cumulative_risk,
+     xlabel="Time step", ylabel="Cumulative P(extinction)",
+     title="Quasi-Extinction Risk (threshold = 10)",
+     legend=false, lw=2, ylim=(0, 1))
+hline!([0.05], ls=:dash, color=:red, label="5% risk level")
+```
+
+## Sensitivity to Threshold
+
+```@example mpm
+thresholds = [1, 5, 10, 25, 50, 100]
+for thr in thresholds
+    qe_t = quasi_extinction(trajectories; threshold=Float64(thr))
+    println("  Threshold=$thr: P(ext)=$(round(qe_t.prob_extinct, digits=3)), mean_t=$(round(qe_t.mean_time_to_extinction, digits=1))")
+end
+```
+
+## Population Trajectories Visualization
+
+```@example mpm
+plot(title="Population Trajectories (50 replicates shown)",
+     xlabel="Time step", ylabel="Total population size",
+     yscale=:log10, legend=false)
+for rep in 1:min(50, size(trajectories, 2))
+    plot!(trajectories[:, rep], alpha=0.3, color=:steelblue)
+end
+hline!([10.0], color=:red, lw=2, ls=:dash)
+annotate!(45, 15, text("Threshold", :red, 8))
+```
+
+## Conservation Application
+
+Quasi-extinction analysis directly informs management decisions:
+- If P(extinction) > 5% within 50 years → population at risk
+- If mean extinction time < planning horizon → urgent intervention needed
+- Comparing scenarios (with/without management) quantifies intervention value
+
+```@example mpm
+# Compare: what if we improve the "bad year" matrix via habitat management?
+A_bad_managed = [0.0 0.0 3.0; 0.45 0.0 0.0; 0.0 0.45 0.6]
+result_managed = project_markov([A_good, A_bad_managed], env, n0, 50; n_reps=500)
+qe_managed = quasi_extinction(result_managed.trajectories; threshold=10.0)
+
+println("Without management: P(ext) = $(round(qe.prob_extinct, digits=3))")
+println("With management:    P(ext) = $(round(qe_managed.prob_extinct, digits=3))")
+println("Risk reduction:     $(round((qe.prob_extinct - qe_managed.prob_extinct) / max(qe.prob_extinct, 0.001) * 100, digits=1))%")
+```
+
+## References
+
+- Morris, W.F. & Doak, D.F. (2002) *Quantitative Conservation Biology*. Sinauer.
+- Caswell, H. (2001) *Matrix Population Models*, Ch. 15. Sinauer.

@@ -1,0 +1,150 @@
+# Historical Conditional Matrices
+
+## Overview
+
+**Historical (memory) matrices** encode demographic transitions that depend not only on current state but also on *previous* state. A historical MPM of size $n^2 \times n^2$ represents transitions $(s_{t-1}, s_t) \rightarrow (s_t, s_{t+1})$ — a second-order Markov process on life stages.
+
+This vignette demonstrates how to:
+- Extract **conditional ahistorical matrices** from a historical MPM
+- Compute **conditional differences** to quantify history-dependence
+- Measure overall **history dependence strength**
+
+## Setup
+
+```@example mpm
+using MatrixProjectionModels
+using LinearAlgebra
+```
+
+## Constructing a Historical Matrix
+
+Consider a 2-stage model (juvenile, adult) where transitions depend on the previous state. The historical matrix is 4×4, indexed by state pairs (prev, curr):
+
+- Column (j,a): (juvenile, adult) — currently adult, previously juvenile
+- Row (a,a): (adult, adult) — next adult, currently adult
+
+```@example mpm
+# 2-stage model: juvenile (j) and adult (a)
+# Historical matrix H[row=(curr,next), col=(prev,curr)]
+# Ordering: (j,j)=1, (j,a)=2, (a,j)=3, (a,a)=4
+
+H = [
+    # col: (j,j) (j,a)  (a,j)  (a,a)
+    0.1    0.0    0.3    0.0   # row (j,j): stay juv | was juv, stay juv | was adult
+    0.5    0.0    0.4    0.0   # row (j,a): juv→adult | was juv, juv→adult | was adult
+    0.0    0.8    0.0    2.5   # row (a,j): adult→juv (reproduction) | was juv, adult→juv | was adult
+    0.0    0.1    0.0    0.6   # row (a,a): stay adult | prev was juv, stay adult | prev was adult
+]
+
+println("Historical matrix (4×4):")
+display(H)
+println("\nλ(H) = ", round(lambda(H), digits=4))
+```
+
+## Extracting Conditional Matrices
+
+`conditional_ahistorical()` extracts the 2×2 matrix that applies given the individual was previously in a specific stage:
+
+```@example mpm
+cond_mats = conditional_ahistorical(H, 2)
+
+println("Conditional matrix given PREVIOUSLY JUVENILE:")
+display(cond_mats[1])
+println("\nλ = ", round(lambda(cond_mats[1]), digits=4))
+
+println("\nConditional matrix given PREVIOUSLY ADULT:")
+display(cond_mats[2])
+println("\nλ = ", round(lambda(cond_mats[2]), digits=4))
+```
+
+This reveals how much the previous state matters:
+- Individuals who were previously juvenile face different transition rates
+- Individuals who were previously adult have different survival/reproduction
+
+## Conditional Differences
+
+`conditional_difference()` quantifies how different the conditional matrices are:
+
+```@example mpm
+diffs = conditional_difference(H, 2)
+println("Pairwise Frobenius distance between conditional matrices:")
+display(diffs)
+println("\nInterpretation: off-diagonal value $(round(diffs[1,2], digits=3)) measures")
+println("how much transitions differ depending on whether the individual")
+println("was previously a juvenile vs previously an adult.")
+```
+
+## History Dependence Metric
+
+`history_dependence()` provides a single normalized measure of memory strength:
+
+```@example mpm
+hd = history_dependence(H, 2)
+println("History dependence = $(round(hd, digits=3))")
+println("  0 = no memory (all conditional matrices identical)")
+println("  Higher = stronger dependence on previous state")
+```
+
+## Example: No History Dependence
+
+When conditional matrices are identical, the historical matrix contains no extra information:
+
+```@example mpm
+# Build a historical matrix with NO history dependence
+# All conditional matrices = same ahistorical matrix
+A_simple = [0.2 2.0; 0.5 0.6]
+
+# Expand to historical (Kronecker structure)
+H_no_memory = zeros(4, 4)
+for prev in 1:2, curr in 1:2
+    col = (prev - 1) * 2 + curr
+    for next in 1:2
+        row = (curr - 1) * 2 + next
+        H_no_memory[row, col] = A_simple[next, curr]
+    end
+end
+
+println("No-memory historical matrix:")
+display(H_no_memory)
+println("\nHistory dependence = $(round(history_dependence(H_no_memory, 2), digits=6))")
+println("(≈ 0 as expected)")
+```
+
+## Biological Applications
+
+History dependence captures important demographic phenomena:
+- **Juvenile carry-over effects**: small juveniles become small adults with lower reproduction
+- **Reproductive costs**: adults that reproduced last year have lower survival
+- **Growth momentum**: individuals that grew rapidly continue to grow rapidly
+- **Senescence acceleration**: declining individuals continue to decline
+
+```@example mpm
+# Extract the single conditional for "previously stage 2" (adult)
+cond_adult = conditional_ahistorical(H, 2; condition_stage=2)
+println("Conditional matrix given previously adult:")
+display(cond_adult)
+println("Stable distribution: ", round.(stable_distribution(cond_adult), digits=3))
+```
+
+## Connecting to Time-Lagged MPMs
+
+The `LaggedMPM` type in MatrixProjectionModels.jl represents these historical matrices. The `expand_lag_matrix()` function from StructuredPopulationCore builds the expanded matrix, and `conditional_ahistorical()` reverses the process:
+
+```@example mpm
+# Round-trip: ahistorical → lagged → conditional extraction
+A_base = [0.3 3.0; 0.6 0.5]
+H_expanded = expand_lag_matrix(A_base)
+println("Expanded lag matrix from ahistorical A:")
+display(H_expanded)
+
+# Extract conditionals — should all be identical (no true memory)
+conds = conditional_ahistorical(H_expanded, 2)
+println("\nConditional (prev=1): ", conds[1])
+println("Conditional (prev=2): ", conds[2])
+println("History dep: $(round(history_dependence(H_expanded, 2), digits=8))")
+```
+
+## References
+
+- Shefferson, R.P. & Ehrlen, J. (2023) lefko3: Historical and ahistorical MPMs.
+- Caswell, H. (2001) *Matrix Population Models*, Ch. 18 (age × stage).

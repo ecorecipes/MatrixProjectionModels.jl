@@ -1,0 +1,235 @@
+# Life History Traits
+
+## Overview
+
+Matrix projection models encode a species' entire demographic strategy. From the survival matrix $\mathbf{U}$ and fecundity matrix $\mathbf{F}$, we can derive a suite of **life history traits**: life expectancy, generation time, net reproductive rate, age at maturity, longevity, and senescence measures. This vignette demonstrates all trait calculations available in MatrixProjectionModels.jl and compares traits across species from COMPADRE and COMADRE.
+
+## Setup
+
+```@example mpm
+using MatrixProjectionModels
+using Plots
+using LinearAlgebra
+```
+
+## Example Species
+
+We define three contrasting species for comparison.
+
+```@example mpm
+# 1. Short-lived annual plant (like Arabidopsis from COMPADRE)
+#    2 stages: vegetative, reproductive
+U_annual = [0.00  0.00
+            0.40  0.00]
+F_annual = [0.0  8.0
+            0.0  0.0]
+
+# 2. Medium-lived perennial herb (like Calathea ovandensis from COMPADRE)
+#    4 stages: seed, juvenile, vegetative adult, reproductive adult
+U_herb = [0.10  0.00  0.00  0.00
+          0.05  0.40  0.00  0.00
+          0.00  0.20  0.60  0.05
+          0.00  0.00  0.20  0.75]
+F_herb = [0.0  0.0  0.0  25.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]
+
+# 3. Long-lived tree (like Tsuga from COMPADRE)
+#    4 stages: seedling, sapling, small tree, large tree
+U_tree = [0.40  0.00  0.00  0.00
+          0.10  0.75  0.00  0.00
+          0.00  0.05  0.92  0.00
+          0.00  0.00  0.03  0.98]
+F_tree = [0.0  0.0  2.0  40.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]
+
+species_names = ["Annual", "Perennial herb", "Tree"]
+U_list = [U_annual, U_herb, U_tree]
+F_list = [F_annual, F_herb, F_tree]
+```
+
+## Life Expectancy
+
+Mean life expectancy from a given starting stage, derived from the fundamental matrix $\mathbf{N} = (\mathbf{I} - \mathbf{U})^{-1}$:
+
+$$E[T] = \mathbf{e}_{\text{start}}^\top \mathbf{N} \mathbf{1}$$
+
+```@example mpm
+for (name, U) in zip(species_names, U_list)
+    le = life_expect_mean(U; start=1)
+    println("$name — mean life expectancy: ", round(le, digits=2), " time steps")
+end
+```
+
+### Variance in Life Expectancy
+
+```@example mpm
+for (name, U) in zip(species_names, U_list)
+    v = life_expect_var(U; start=1)
+    println("$name — variance in life expectancy: ", round(v, digits=2))
+end
+```
+
+## Longevity
+
+The age at which survivorship drops below a threshold (default 1%):
+
+```@example mpm
+for (name, U) in zip(species_names, U_list)
+    l = longevity(U; start=1, lx_crit=0.01)
+    println("$name — longevity (l(x) < 0.01): age ", l)
+end
+```
+
+## Net Reproductive Rate
+
+The net reproductive rate $R_0$ is the expected number of offspring produced by an individual over its lifetime. A population grows if $R_0 > 1$:
+
+$$R_0 = \sum_x l(x) \cdot m(x)$$
+
+```@example mpm
+for (name, U, F) in zip(species_names, U_list, F_list)
+    R0 = net_repro_rate(U, F; start=1)
+    println("$name — R₀ = ", round(R0, digits=4))
+end
+```
+
+## Generation Time
+
+The mean age of parents of offspring produced at the stable stage distribution. Three methods are available:
+
+1. **`:R0`** — $T = \log(R_0) / \log(\lambda)$ (most common)
+2. **`:cohort`** — Mean age of reproduction in a cohort
+3. **`:age_diff`** — Mean age of parents minus mean age of offspring
+
+```@example mpm
+for (name, U, F) in zip(species_names, U_list, F_list)
+    T_r0 = gen_time(U, F; start=1, method=:R0)
+    T_coh = gen_time(U, F; start=1, method=:cohort)
+    println("$name — generation time: R₀ method = ", round(T_r0, digits=2),
+        ", cohort method = ", round(T_coh, digits=2))
+end
+```
+
+## Maturity
+
+### Probability of Reaching Maturity
+
+The probability that a newborn will survive to first reach a reproductive stage:
+
+```@example mpm
+for (name, U, F) in zip(species_names, U_list, F_list)
+    p = mature_prob(U, F; start=1)
+    println("$name — P(maturity) = ", round(p, digits=4))
+end
+```
+
+### Mean Age at First Reproduction
+
+```@example mpm
+for (name, U, F) in zip(species_names, U_list, F_list)
+    a = mature_age(U, F; start=1)
+    println("$name — mean age at maturity = ", round(a, digits=2))
+end
+```
+
+## Entropy and Senescence
+
+### Keyfitz's Entropy
+
+Keyfitz's entropy $H$ measures the shape of the survivorship curve. $H < 1$ indicates Type I (convex) curves, $H = 1$ indicates Type II (exponential), and $H > 1$ indicates Type III (concave) curves:
+
+$$H = -\frac{\sum l(x) \log l(x)}{\sum l(x)}$$
+
+```@example mpm
+for (name, U) in zip(species_names, U_list)
+    H = entropy_k_stage(U)
+    curve_type = H < 1 ? "Type I (convex)" :
+                 H ≈ 1 ? "Type II (exponential)" : "Type III (concave)"
+    println("$name — Keyfitz H = ", round(H, digits=4), " → ", curve_type)
+end
+```
+
+### Demetrius' Entropy
+
+Demetrius' entropy measures the diversity of the reproductive schedule:
+
+```@example mpm
+for (name, U, F) in zip(species_names, U_list, F_list)
+    lx = mpm_to_lx(U; start=1)
+    mx = mpm_to_mx(U, F; start=1)
+    if length(mx) > 0 && any(mx .> 0)
+        S = entropy_d(lx[1:length(mx)], mx)
+        println("$name — Demetrius' entropy = ", round(S, digits=4))
+    end
+end
+```
+
+## Shape of Survivorship and Reproduction
+
+The `shape_surv` and `shape_rep` functions quantify the shape of survivorship and reproductive curves on a standardized scale from -1/6 (strongly Type III / early reproduction) to +1/6 (strongly Type I / late reproduction):
+
+```@example mpm
+for (name, U, F) in zip(species_names, U_list, F_list)
+    lx = mpm_to_lx(U; start=1)
+    s_surv = shape_surv(lx)
+    s_rep = shape_rep(U, F; start=1)
+    println("$name — shape(survival) = ", round(s_surv, digits=4),
+        ", shape(reproduction) = ", round(s_rep, digits=4))
+end
+```
+
+## Comparative Life History Summary
+
+```@example mpm
+n = length(species_names)
+traits = zeros(n, 6)
+
+for i in 1:n
+    traits[i, 1] = lambda(U_list[i] + F_list[i])
+    traits[i, 2] = life_expect_mean(U_list[i]; start=1)
+    traits[i, 3] = gen_time(U_list[i], F_list[i]; start=1, method=:R0)
+    traits[i, 4] = net_repro_rate(U_list[i], F_list[i]; start=1)
+    traits[i, 5] = mature_age(U_list[i], F_list[i]; start=1)
+    traits[i, 6] = longevity(U_list[i]; start=1, lx_crit=0.01)
+end
+
+trait_names = ["λ", "Life expect.", "Gen. time", "R₀", "Age maturity", "Longevity"]
+
+for j in 1:6
+    println("\n$(trait_names[j]):")
+    for i in 1:n
+        println("  $(species_names[i]): ", round(traits[i, j], digits=3))
+    end
+end
+```
+
+### Fast-Slow Continuum
+
+The classic fast-slow life history continuum: short-lived species with high reproduction vs. long-lived species with delayed reproduction.
+
+```@example mpm
+scatter(traits[:, 2], traits[:, 3],
+    xlabel="Mean life expectancy",
+    ylabel="Generation time",
+    title="Fast-slow continuum",
+    series_annotations=species_names,
+    markersize=8, legend=false,
+    color=[:red, :blue, :green])
+```
+
+## Summary
+
+In this vignette we:
+
+1. Computed life expectancy (mean and variance) from the fundamental matrix
+2. Estimated longevity, net reproductive rate $R_0$, and generation time
+3. Measured probability and age of maturity
+4. Quantified senescence with Keyfitz's and Demetrius' entropy
+5. Characterized survivorship and reproduction shape
+6. Compared life history traits across the fast-slow continuum
+
+The next vignette covers perturbation analysis (sensitivity and elasticity).
