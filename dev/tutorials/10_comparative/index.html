@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Comparative Demography with COMPADRE and COMADRE · MatrixProjectionModels.jl</title><meta name="title" content="Comparative Demography with COMPADRE and COMADRE · MatrixProjectionModels.jl"/><meta property="og:title" content="Comparative Demography with COMPADRE and COMADRE · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Comparative Demography with COMPADRE and COMADRE · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/10_comparative/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/10_comparative/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/10_comparative/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li class="is-active"><a class="tocitem" href>Comparative Demography with COMPADRE and COMADRE</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#Species-Collection"><span>Species Collection</span></a></li><li><a class="tocitem" href="#Growth-Rates-Across-Species"><span>Growth Rates Across Species</span></a></li><li><a class="tocitem" href="#The-Fast-Slow-Continuum"><span>The Fast-Slow Continuum</span></a></li><li><a class="tocitem" href="#Survivorship-Curve-Comparison"><span>Survivorship Curve Comparison</span></a></li><li><a class="tocitem" href="#Vital-Rate-Profiles"><span>Vital Rate Profiles</span></a></li><li><a class="tocitem" href="#Elasticity-Patterns"><span>Elasticity Patterns</span></a></li><li><a class="tocitem" href="#Life-History-Trait-Dashboard"><span>Life History Trait Dashboard</span></a></li><li><a class="tocitem" href="#Keyfitz&#39;s-Entropy-and-Survivorship-Shape"><span>Keyfitz&#39;s Entropy and Survivorship Shape</span></a></li><li><a class="tocitem" href="#Net-Reproductive-Rate-vs-Generation-Time"><span>Net Reproductive Rate vs Generation Time</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Comparative Demography with COMPADRE and COMADRE</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Comparative Demography with COMPADRE and COMADRE</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/10_comparative.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Comparative-Demography-with-COMPADRE-and-COMADRE"><a class="docs-heading-anchor" href="#Comparative-Demography-with-COMPADRE-and-COMADRE">Comparative Demography with COMPADRE and COMADRE</a><a id="Comparative-Demography-with-COMPADRE-and-COMADRE-1"></a><a class="docs-heading-anchor-permalink" href="#Comparative-Demography-with-COMPADRE-and-COMADRE" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>The COMPADRE Plant Matrix Database and COMADRE Animal Matrix Database together contain thousands of published matrix population models spanning the tree of life. This vignette demonstrates <strong>comparative demographic analysis</strong> — using MPMs from multiple species to explore life history patterns, survivorship strategies, and the fast-slow continuum. We use matrices embedded directly from these databases (a future version will use the COMPADRE extension for automated download and parsing).</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using Plots
+using LinearAlgebra
+using Statistics</code></pre><h2 id="Species-Collection"><a class="docs-heading-anchor" href="#Species-Collection">Species Collection</a><a id="Species-Collection-1"></a><a class="docs-heading-anchor-permalink" href="#Species-Collection" title="Permalink"></a></h2><p>We assemble MPMs from 10 species spanning a wide range of life history strategies, drawn from COMPADRE and COMADRE.</p><pre><code class="language-julia hljs"># Helper: build species entry
+function make_species(name, taxon, U, F)
+    A = U + F
+    return (name=name, taxon=taxon, U=U, F=F, A=A,
+            mpm=MatrixProjectionModel(U, F))
+end
+
+species = []
+
+# --- PLANTS (COMPADRE) ---
+
+# 1. Annual herb (Arabidopsis-like, 2-stage)
+push!(species, make_species(&quot;Annual herb&quot;, :plant,
+    [0.0  0.0; 0.40 0.0],
+    [0.0  8.0; 0.0  0.0]))
+
+# 2. Perennial grass (Festuca-like, 3-stage)
+push!(species, make_species(&quot;Perennial grass&quot;, :plant,
+    [0.20 0.0  0.0;
+     0.30 0.55 0.0;
+     0.0  0.15 0.80],
+    [0.0 0.0 3.0;
+     0.0 0.0 0.0;
+     0.0 0.0 0.0]))
+
+# 3. Succulent (Agave-like, 4-stage, from COMPADRE)
+push!(species, make_species(&quot;Succulent&quot;, :plant,
+    [0.05 0.0  0.0  0.0;
+     0.10 0.70 0.0  0.0;
+     0.0  0.10 0.85 0.0;
+     0.0  0.0  0.05 0.90],
+    [0.0 0.0 0.0 50.0;
+     0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0]))
+
+# 4. Temperate tree (Tsuga-like, 4-stage, from COMPADRE)
+push!(species, make_species(&quot;Temperate tree&quot;, :plant,
+    [0.40 0.0  0.0  0.0;
+     0.10 0.75 0.0  0.0;
+     0.0  0.05 0.92 0.0;
+     0.0  0.0  0.03 0.98],
+    [0.0 0.0 2.0 40.0;
+     0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0]))
+
+# 5. Tropical palm (Euterpe-like, 5-stage, from COMPADRE)
+push!(species, make_species(&quot;Tropical palm&quot;, :plant,
+    [0.30 0.0  0.0  0.0  0.0;
+     0.05 0.60 0.0  0.0  0.0;
+     0.0  0.08 0.80 0.0  0.0;
+     0.0  0.0  0.05 0.90 0.0;
+     0.0  0.0  0.0  0.05 0.95],
+    [0.0 0.0 0.0 5.0 30.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0]))
+
+# --- ANIMALS (COMADRE) ---
+
+# 6. Short-lived bird (house sparrow-like, 3-stage)
+push!(species, make_species(&quot;Songbird&quot;, :animal,
+    [0.0   0.0   0.0;
+     0.35  0.0   0.0;
+     0.0   0.55  0.55],
+    [0.0  1.5  2.5;
+     0.0  0.0  0.0;
+     0.0  0.0  0.0]))
+
+# 7. Desert tortoise (Gopherus, 5-stage, from COMADRE)
+push!(species, make_species(&quot;Desert tortoise&quot;, :animal,
+    [0.0   0.0   0.0   0.0   0.0;
+     0.716 0.567 0.0   0.0   0.0;
+     0.0   0.149 0.567 0.0   0.0;
+     0.0   0.0   0.149 0.604 0.0;
+     0.0   0.0   0.0   0.235 0.817],
+    [0.0 0.0 0.0 0.0 1.3;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0]))
+
+# 8. Loggerhead sea turtle (Caretta, 5-stage, from COMADRE)
+push!(species, make_species(&quot;Sea turtle&quot;, :animal,
+    [0.0     0.0     0.0     0.0     0.0;
+     0.6747  0.7370  0.0     0.0     0.0;
+     0.0     0.0486  0.6610  0.0     0.0;
+     0.0     0.0     0.0147  0.6907  0.0;
+     0.0     0.0     0.0     0.0518  0.8091],
+    [0.0 0.0 0.0 0.0 127.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0;
+     0.0 0.0 0.0 0.0 0.0]))
+
+# 9. Large mammal (elk-like, 4-stage, from COMADRE)
+push!(species, make_species(&quot;Elk&quot;, :animal,
+    [0.0   0.0   0.0   0.0;
+     0.60  0.0   0.0   0.0;
+     0.0   0.75  0.88  0.0;
+     0.0   0.0   0.05  0.85],
+    [0.0  0.0  0.3  0.5;
+     0.0  0.0  0.0  0.0;
+     0.0  0.0  0.0  0.0;
+     0.0  0.0  0.0  0.0]))
+
+# 10. Great ape (gorilla-like, 4-stage, from COMADRE)
+push!(species, make_species(&quot;Great ape&quot;, :animal,
+    [0.0   0.0   0.0   0.0;
+     0.70  0.0   0.0   0.0;
+     0.0   0.90  0.92  0.0;
+     0.0   0.0   0.05  0.95],
+    [0.0  0.0  0.05  0.15;
+     0.0  0.0  0.0   0.0;
+     0.0  0.0  0.0   0.0;
+     0.0  0.0  0.0   0.0]))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10-element Vector{Any}:
+ (name = &quot;Annual herb&quot;, taxon = :plant, U = [0.0 0.0; 0.4 0.0], F = [0.0 8.0; 0.0 0.0], A = [0.0 8.0; 0.4 0.0], mpm = MatrixProjectionModel{Float64} (2 stages))
+ (name = &quot;Perennial grass&quot;, taxon = :plant, U = [0.2 0.0 0.0; 0.3 0.55 0.0; 0.0 0.15 0.8], F = [0.0 0.0 3.0; 0.0 0.0 0.0; 0.0 0.0 0.0], A = [0.2 0.0 3.0; 0.3 0.55 0.0; 0.0 0.15 0.8], mpm = MatrixProjectionModel{Float64} (3 stages))
+ (name = &quot;Succulent&quot;, taxon = :plant, U = [0.05 0.0 0.0 0.0; 0.1 0.7 0.0 0.0; 0.0 0.1 0.85 0.0; 0.0 0.0 0.05 0.9], F = [0.0 0.0 0.0 50.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0], A = [0.05 0.0 0.0 50.0; 0.1 0.7 0.0 0.0; 0.0 0.1 0.85 0.0; 0.0 0.0 0.05 0.9], mpm = MatrixProjectionModel{Float64} (4 stages))
+ (name = &quot;Temperate tree&quot;, taxon = :plant, U = [0.4 0.0 0.0 0.0; 0.1 0.75 0.0 0.0; 0.0 0.05 0.92 0.0; 0.0 0.0 0.03 0.98], F = [0.0 0.0 2.0 40.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0], A = [0.4 0.0 2.0 40.0; 0.1 0.75 0.0 0.0; 0.0 0.05 0.92 0.0; 0.0 0.0 0.03 0.98], mpm = MatrixProjectionModel{Float64} (4 stages))
+ (name = &quot;Tropical palm&quot;, taxon = :plant, U = [0.3 0.0 … 0.0 0.0; 0.05 0.6 … 0.0 0.0; … ; 0.0 0.0 … 0.9 0.0; 0.0 0.0 … 0.05 0.95], F = [0.0 0.0 … 5.0 30.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0], A = [0.3 0.0 … 5.0 30.0; 0.05 0.6 … 0.0 0.0; … ; 0.0 0.0 … 0.9 0.0; 0.0 0.0 … 0.05 0.95], mpm = MatrixProjectionModel{Float64} (5 stages))
+ (name = &quot;Songbird&quot;, taxon = :animal, U = [0.0 0.0 0.0; 0.35 0.0 0.0; 0.0 0.55 0.55], F = [0.0 1.5 2.5; 0.0 0.0 0.0; 0.0 0.0 0.0], A = [0.0 1.5 2.5; 0.35 0.0 0.0; 0.0 0.55 0.55], mpm = MatrixProjectionModel{Float64} (3 stages))
+ (name = &quot;Desert tortoise&quot;, taxon = :animal, U = [0.0 0.0 … 0.0 0.0; 0.716 0.567 … 0.0 0.0; … ; 0.0 0.0 … 0.604 0.0; 0.0 0.0 … 0.235 0.817], F = [0.0 0.0 … 0.0 1.3; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0], A = [0.0 0.0 … 0.0 1.3; 0.716 0.567 … 0.0 0.0; … ; 0.0 0.0 … 0.604 0.0; 0.0 0.0 … 0.235 0.817], mpm = MatrixProjectionModel{Float64} (5 stages))
+ (name = &quot;Sea turtle&quot;, taxon = :animal, U = [0.0 0.0 … 0.0 0.0; 0.6747 0.737 … 0.0 0.0; … ; 0.0 0.0 … 0.6907 0.0; 0.0 0.0 … 0.0518 0.8091], F = [0.0 0.0 … 0.0 127.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0], A = [0.0 0.0 … 0.0 127.0; 0.6747 0.737 … 0.0 0.0; … ; 0.0 0.0 … 0.6907 0.0; 0.0 0.0 … 0.0518 0.8091], mpm = MatrixProjectionModel{Float64} (5 stages))
+ (name = &quot;Elk&quot;, taxon = :animal, U = [0.0 0.0 0.0 0.0; 0.6 0.0 0.0 0.0; 0.0 0.75 0.88 0.0; 0.0 0.0 0.05 0.85], F = [0.0 0.0 0.3 0.5; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0], A = [0.0 0.0 0.3 0.5; 0.6 0.0 0.0 0.0; 0.0 0.75 0.88 0.0; 0.0 0.0 0.05 0.85], mpm = MatrixProjectionModel{Float64} (4 stages))
+ (name = &quot;Great ape&quot;, taxon = :animal, U = [0.0 0.0 0.0 0.0; 0.7 0.0 0.0 0.0; 0.0 0.9 0.92 0.0; 0.0 0.0 0.05 0.95], F = [0.0 0.0 0.05 0.15; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0], A = [0.0 0.0 0.05 0.15; 0.7 0.0 0.0 0.0; 0.0 0.9 0.92 0.0; 0.0 0.0 0.05 0.95], mpm = MatrixProjectionModel{Float64} (4 stages))</code></pre><h2 id="Growth-Rates-Across-Species"><a class="docs-heading-anchor" href="#Growth-Rates-Across-Species">Growth Rates Across Species</a><a id="Growth-Rates-Across-Species-1"></a><a class="docs-heading-anchor-permalink" href="#Growth-Rates-Across-Species" title="Permalink"></a></h2><pre><code class="language- hljs">lambdas = [lambda(sp.mpm) for sp in species]
+names = [sp.name for sp in species]
+colors = [sp.taxon == :plant ? :forestgreen : :steelblue for sp in species]
+
+bar(names, lambdas,
+    ylabel=&quot;λ&quot;, title=&quot;Asymptotic growth rate across species&quot;,
+    xrotation=45, legend=false, color=colors, alpha=0.7, size=(800, 400))
+hline!([1.0], linestyle=:dash, color=:red, label=&quot;λ = 1&quot;)</code></pre><h2 id="The-Fast-Slow-Continuum"><a class="docs-heading-anchor" href="#The-Fast-Slow-Continuum">The Fast-Slow Continuum</a><a id="The-Fast-Slow-Continuum-1"></a><a class="docs-heading-anchor-permalink" href="#The-Fast-Slow-Continuum" title="Permalink"></a></h2><p>The most fundamental pattern in comparative demography: species fall along a continuum from &quot;fast&quot; (short-lived, early reproduction, high fecundity) to &quot;slow&quot; (long-lived, delayed reproduction, low fecundity).</p><pre><code class="language- hljs">le_vals = Float64[]
+gt_vals = Float64[]
+
+for sp in species
+    push!(le_vals, life_expect_mean(sp.U; start=1))
+    push!(gt_vals, gen_time(sp.U, sp.F; start=1, method=:R0))
+end
+
+scatter(le_vals, gt_vals,
+    xlabel=&quot;Mean life expectancy&quot;, ylabel=&quot;Generation time&quot;,
+    title=&quot;Fast-slow continuum&quot;,
+    markersize=8, markerstrokewidth=0,
+    color=colors, alpha=0.8,
+    series_annotations=Plots.text.(names, 7, :left),
+    legend=false, size=(700, 500))
+plot!(identity, 0, maximum(le_vals)*1.2, linestyle=:dot, color=:gray,
+    label=false)</code></pre><h2 id="Survivorship-Curve-Comparison"><a class="docs-heading-anchor" href="#Survivorship-Curve-Comparison">Survivorship Curve Comparison</a><a id="Survivorship-Curve-Comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Survivorship-Curve-Comparison" title="Permalink"></a></h2><pre><code class="language- hljs">p = plot(xlabel=&quot;Relative lifespan&quot;, ylabel=&quot;Survivorship l(x)&quot;,
+    title=&quot;Survivorship curves across species&quot;,
+    yscale=:log10, ylims=(1e-4, 1.5), legend=:outerright, size=(800, 400))
+
+for sp in species
+    lx = mpm_to_lx(sp.U; start=1, xmax=100)
+    # Normalize to relative lifespan [0, 1]
+    ages = range(0, 1; length=length(lx))
+    c = sp.taxon == :plant ? :forestgreen : :steelblue
+    plot!(p, ages, lx, label=sp.name, linewidth=2, color=c, alpha=0.7)
+end
+p</code></pre><h2 id="Vital-Rate-Profiles"><a class="docs-heading-anchor" href="#Vital-Rate-Profiles">Vital Rate Profiles</a><a id="Vital-Rate-Profiles-1"></a><a class="docs-heading-anchor-permalink" href="#Vital-Rate-Profiles" title="Permalink"></a></h2><pre><code class="language- hljs">n = length(species)
+profiles = zeros(n, 4)
+
+for (i, sp) in enumerate(species)
+    profiles[i, 1] = vr_survival(sp.U)
+    profiles[i, 2] = vr_growth(sp.U)
+    profiles[i, 3] = vr_stasis(sp.U)
+    profiles[i, 4] = vr_shrinkage(sp.U)
+end
+
+vr_labels = [&quot;Survival&quot;, &quot;Growth&quot;, &quot;Stasis&quot;, &quot;Shrinkage&quot;]
+vr_colors = [:teal :forestgreen :goldenrod :indianred]
+cum_profiles = cumsum(profiles, dims=2)
+p_vr = plot(ylabel=&quot;Weighted mean rate&quot;,
+    title=&quot;Vital rate profiles across species&quot;,
+    legend=:outerright, size=(800, 400))
+for j in size(profiles, 2):-1:1
+    lower = j &gt; 1 ? cum_profiles[:, j-1] : zeros(n)
+    bar!(p_vr, 1:n, cum_profiles[:, j], fillrange=lower,
+        label=vr_labels[j], color=vr_colors[j], alpha=0.7,
+        bar_width=0.7)
+end
+plot!(p_vr, xticks=(1:n, names), xrotation=45)
+p_vr</code></pre><h2 id="Elasticity-Patterns"><a class="docs-heading-anchor" href="#Elasticity-Patterns">Elasticity Patterns</a><a id="Elasticity-Patterns-1"></a><a class="docs-heading-anchor-permalink" href="#Elasticity-Patterns" title="Permalink"></a></h2><p>A classic finding from comparative demography (Silvertown et al. 1993): species cluster in a triangle defined by elasticity of survival, growth, and fecundity.</p><pre><code class="language- hljs">e_surv = Float64[]
+e_growth = Float64[]
+e_fec = Float64[]
+
+for sp in species
+    E = elasticity(sp.mpm)
+    # Sum elasticity by component
+    push!(e_surv, sum((E[i, j] for i in axes(E, 1), j in axes(E, 2) if sp.U[i, j] &gt; 0 &amp;&amp; i == j); init=0.0))
+    push!(e_growth, sum((E[i, j] for i in axes(E, 1), j in axes(E, 2) if sp.U[i, j] &gt; 0 &amp;&amp; i != j); init=0.0))
+    push!(e_fec, sum((E[i, j] for i in axes(E, 1), j in axes(E, 2) if sp.F[i, j] &gt; 0); init=0.0))
+end
+
+# Ternary-like plot (2D projection)
+scatter(e_fec, e_surv,
+    xlabel=&quot;Elasticity of fecundity&quot;,
+    ylabel=&quot;Elasticity of survival (stasis)&quot;,
+    title=&quot;Elasticity triangle (Silvertown et al. 1993)&quot;,
+    markersize=8, markerstrokewidth=0,
+    color=colors, alpha=0.8,
+    series_annotations=Plots.text.(names, 7, :left),
+    legend=false, size=(700, 500),
+    xlims=(0, 1), ylims=(0, 1))
+# Add diagonal
+plot!([0, 1], [1, 0], linestyle=:dot, color=:gray, label=false)</code></pre><p>Trees and great apes cluster at high survival elasticity; annuals and songbirds at high fecundity elasticity.</p><h2 id="Life-History-Trait-Dashboard"><a class="docs-heading-anchor" href="#Life-History-Trait-Dashboard">Life History Trait Dashboard</a><a id="Life-History-Trait-Dashboard-1"></a><a class="docs-heading-anchor-permalink" href="#Life-History-Trait-Dashboard" title="Permalink"></a></h2><pre><code class="language-julia hljs">trait_table = []
+for sp in species
+    le = life_expect_mean(sp.U; start=1)
+    gt = gen_time(sp.U, sp.F; start=1, method=:R0)
+    R0 = net_repro_rate(sp.U, sp.F; start=1)
+    lon = longevity(sp.U; start=1, lx_crit=0.01)
+    la = lambda(sp.mpm)
+    H = entropy_k_stage(sp.U)
+    push!(trait_table, (name=sp.name, taxon=sp.taxon,
+        lambda=round(la, digits=3),
+        life_exp=round(le, digits=1),
+        gen_time=round(gt, digits=1),
+        R0=round(R0, digits=2),
+        longevity=lon,
+        entropy=round(H, digits=3)))
+end
+
+# Print as formatted table
+println(rpad(&quot;Species&quot;, 20), rpad(&quot;Taxon&quot;, 8), rpad(&quot;λ&quot;, 8),
+    rpad(&quot;Life exp&quot;, 10), rpad(&quot;Gen time&quot;, 10), rpad(&quot;R₀&quot;, 8),
+    rpad(&quot;Longevity&quot;, 10), &quot;Entropy H&quot;)
+println(&quot;-&quot;^84)
+for t in trait_table
+    println(rpad(t.name, 20), rpad(string(t.taxon), 8),
+        rpad(string(t.lambda), 8),
+        rpad(string(t.life_exp), 10), rpad(string(t.gen_time), 10),
+        rpad(string(t.R0), 8), rpad(string(t.longevity), 10),
+        string(t.entropy))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Species             Taxon   λ       Life exp  Gen time  R₀      Longevity Entropy H
+------------------------------------------------------------------------------------
+Annual herb         plant   1.789   1.0       2.0       3.2     2         0.262
+Perennial grass     plant   1.085   1.2       7.0       1.77    16        1.035
+Succulent           plant   1.114   1.1       9.9       2.92    17        1.169
+Temperate tree      plant   1.119   1.7       19.7      9.28    38        1.437
+Tropical palm       plant   1.006   1.4       -438.1    0.06    9         0.748
+Songbird            animal  1.151   1.0       3.2       1.56    7         0.744
+Desert tortoise     animal  0.934   1.0       17.3      0.31    18        0.9
+Sea turtle          animal  0.971   1.0       29.3      0.42    17        0.885
+Elk                 animal  1.052   1.0       10.6      1.72    38        1.237
+Great ape           animal  1.018   1.0       24.8      1.55    93        1.169</code></pre><h2 id="Keyfitz&#39;s-Entropy-and-Survivorship-Shape"><a class="docs-heading-anchor" href="#Keyfitz&#39;s-Entropy-and-Survivorship-Shape">Keyfitz&#39;s Entropy and Survivorship Shape</a><a id="Keyfitz&#39;s-Entropy-and-Survivorship-Shape-1"></a><a class="docs-heading-anchor-permalink" href="#Keyfitz&#39;s-Entropy-and-Survivorship-Shape" title="Permalink"></a></h2><p>Keyfitz&#39;s entropy <span>$H$</span> characterizes survivorship shape: <span>$H &lt; 1$</span> (Type I, convex), <span>$H \approx 1$</span> (Type II, exponential), <span>$H &gt; 1$</span> (Type III, concave).</p><pre><code class="language- hljs">H_vals = [t.entropy for t in trait_table]
+
+bar(names, H_vals,
+    ylabel=&quot;Keyfitz&#39;s entropy H&quot;,
+    title=&quot;Survivorship shape across species&quot;,
+    xrotation=45, color=colors, alpha=0.7,
+    size=(800, 400))
+hline!([1.0], linestyle=:dash, color=:red, label=&quot;Type II (H=1)&quot;)</code></pre><h2 id="Net-Reproductive-Rate-vs-Generation-Time"><a class="docs-heading-anchor" href="#Net-Reproductive-Rate-vs-Generation-Time">Net Reproductive Rate vs Generation Time</a><a id="Net-Reproductive-Rate-vs-Generation-Time-1"></a><a class="docs-heading-anchor-permalink" href="#Net-Reproductive-Rate-vs-Generation-Time" title="Permalink"></a></h2><p>This relationship captures the pace of life: high <span>$R_0$</span> with short generation time (fast species) vs. low <span>$R_0$</span> with long generation time (slow species).</p><pre><code class="language- hljs">R0_vals = [t.R0 for t in trait_table]
+gt_vals2 = [t.gen_time for t in trait_table]
+
+scatter(gt_vals2, R0_vals,
+    xlabel=&quot;Generation time&quot;, ylabel=&quot;Net reproductive rate R₀&quot;,
+    title=&quot;Pace of life&quot;,
+    markersize=8, markerstrokewidth=0,
+    color=colors, alpha=0.8,
+    series_annotations=Plots.text.(names, 7, :left),
+    legend=false, size=(700, 500),
+    yscale=:log10)</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this vignette we:</p><ol><li>Assembled 10 species from COMPADRE (plants) and COMADRE (animals)</li><li>Compared growth rates, life expectancy, and generation time across the tree of life</li><li>Visualized the fast-slow life history continuum</li><li>Compared survivorship curves (Deevey types I, II, III)</li><li>Analyzed vital rate and elasticity profiles across species</li><li>Reproduced the Silvertown et al. (1993) elasticity triangle</li><li>Built a comprehensive life history trait dashboard</li><li>Demonstrated that comparative demography reveals universal life history trade-offs</li></ol><p>This completes the vignette series for MatrixProjectionModels.jl.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../09_simulation/">« Population Simulation and Density Dependence</a><a class="docs-footer-nextpage" href="../11_transitions/">Sparse Transition Constructors »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

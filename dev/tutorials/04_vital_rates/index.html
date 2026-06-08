@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Vital Rate Extraction and Decomposition · MatrixProjectionModels.jl</title><meta name="title" content="Vital Rate Extraction and Decomposition · MatrixProjectionModels.jl"/><meta property="og:title" content="Vital Rate Extraction and Decomposition · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Vital Rate Extraction and Decomposition · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/04_vital_rates/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/04_vital_rates/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/04_vital_rates/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li class="is-active"><a class="tocitem" href>Vital Rate Extraction and Decomposition</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#Example-Species"><span>Example Species</span></a></li><li><a class="tocitem" href="#Stage-Specific-Vital-Rates"><span>Stage-Specific Vital Rates</span></a></li><li><a class="tocitem" href="#Weighted-Mean-Vital-Rates"><span>Weighted Mean Vital Rates</span></a></li><li><a class="tocitem" href="#Dormancy-Transitions"><span>Dormancy Transitions</span></a></li><li><a class="tocitem" href="#Comparing-Species-from-COMPADRE/COMADRE"><span>Comparing Species from COMPADRE/COMADRE</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Vital Rate Extraction and Decomposition</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Vital Rate Extraction and Decomposition</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/04_vital_rates.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Vital-Rate-Extraction-and-Decomposition"><a class="docs-heading-anchor" href="#Vital-Rate-Extraction-and-Decomposition">Vital Rate Extraction and Decomposition</a><a id="Vital-Rate-Extraction-and-Decomposition-1"></a><a class="docs-heading-anchor-permalink" href="#Vital-Rate-Extraction-and-Decomposition" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>Matrix elements encode <em>multiple</em> demographic processes simultaneously — a single transition <span>$a_{ij}$</span> may reflect survival, growth, and stasis combined. This vignette demonstrates how to decompose MPMs into interpretable <strong>vital rates</strong>: survival, growth (progression), shrinkage (retrogression), stasis, and reproduction. These decompositions follow the framework of Rage (Jouganous et al. 2022) and are essential for comparative demography.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using Plots
+using LinearAlgebra</code></pre><h2 id="Example-Species"><a class="docs-heading-anchor" href="#Example-Species">Example Species</a><a id="Example-Species-1"></a><a class="docs-heading-anchor-permalink" href="#Example-Species" title="Permalink"></a></h2><p>We use a 5-stage model for a hypothetical perennial herb (based on typical COMPADRE plant matrices), with stages representing: seed bank, seedling, small vegetative, large vegetative, and flowering.</p><pre><code class="language-julia hljs"># Survival/transition matrix
+U = [0.10  0.00  0.00  0.00  0.00
+     0.05  0.20  0.00  0.00  0.00
+     0.00  0.30  0.40  0.05  0.00
+     0.00  0.00  0.25  0.50  0.10
+     0.00  0.00  0.00  0.30  0.60]
+
+# Fecundity matrix (only flowering plants produce seeds)
+F = [0.0  0.0  0.0  0.0  200.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0]
+
+stage_names = [:seed_bank, :seedling, :small, :large, :flowering]
+mpm = MatrixProjectionModel(U, F; stage_names=stage_names)
+println(&quot;λ = &quot;, round(lambda(mpm), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">λ = 1.142</code></pre><h2 id="Stage-Specific-Vital-Rates"><a class="docs-heading-anchor" href="#Stage-Specific-Vital-Rates">Stage-Specific Vital Rates</a><a id="Stage-Specific-Vital-Rates-1"></a><a class="docs-heading-anchor-permalink" href="#Stage-Specific-Vital-Rates" title="Permalink"></a></h2><h3 id="Survival"><a class="docs-heading-anchor" href="#Survival">Survival</a><a id="Survival-1"></a><a class="docs-heading-anchor-permalink" href="#Survival" title="Permalink"></a></h3><p>Total survival probability for each stage — the column sum of <span>$\mathbf{U}$</span>:</p><pre><code class="language- hljs">surv = vr_vec_survival(U)
+bar(String.(stage_names), surv,
+    ylabel=&quot;Survival probability&quot;, title=&quot;Stage-specific survival&quot;,
+    legend=false, color=:teal, alpha=0.7, ylims=(0, 1))</code></pre><h3 id="Growth-(Progression)"><a class="docs-heading-anchor" href="#Growth-(Progression)">Growth (Progression)</a><a id="Growth-(Progression)-1"></a><a class="docs-heading-anchor-permalink" href="#Growth-(Progression)" title="Permalink"></a></h3><p>The probability of moving to a <em>later</em> (larger/more advanced) stage, conditional on survival:</p><pre><code class="language- hljs">growth = vr_vec_growth(U)
+bar(String.(stage_names), growth,
+    ylabel=&quot;Growth probability&quot;, title=&quot;Progression rate&quot;,
+    legend=false, color=:forestgreen, alpha=0.7, ylims=(0, 1))</code></pre><h3 id="Stasis"><a class="docs-heading-anchor" href="#Stasis">Stasis</a><a id="Stasis-1"></a><a class="docs-heading-anchor-permalink" href="#Stasis" title="Permalink"></a></h3><p>The probability of remaining in the same stage:</p><pre><code class="language- hljs">stasis = vr_vec_stasis(U)
+bar(String.(stage_names), stasis,
+    ylabel=&quot;Stasis probability&quot;, title=&quot;Stasis rate&quot;,
+    legend=false, color=:goldenrod, alpha=0.7, ylims=(0, 1))</code></pre><h3 id="Shrinkage-(Retrogression)"><a class="docs-heading-anchor" href="#Shrinkage-(Retrogression)">Shrinkage (Retrogression)</a><a id="Shrinkage-(Retrogression)-1"></a><a class="docs-heading-anchor-permalink" href="#Shrinkage-(Retrogression)" title="Permalink"></a></h3><p>The probability of moving to an <em>earlier</em> (smaller) stage:</p><pre><code class="language- hljs">shrink = vr_vec_shrinkage(U)
+bar(String.(stage_names), shrink,
+    ylabel=&quot;Shrinkage probability&quot;, title=&quot;Retrogression rate&quot;,
+    legend=false, color=:indianred, alpha=0.7, ylims=(0, 1))</code></pre><h3 id="Reproduction"><a class="docs-heading-anchor" href="#Reproduction">Reproduction</a><a id="Reproduction-1"></a><a class="docs-heading-anchor-permalink" href="#Reproduction" title="Permalink"></a></h3><p>Stage-specific reproduction rate, conditional on survival. This uses <span>$\mathbf{F}$</span> and <span>$\mathbf{U}$</span>:</p><pre><code class="language- hljs">repro = vr_vec_reproduction(U, F)
+bar(String.(stage_names), repro,
+    ylabel=&quot;Per-capita reproduction&quot;, title=&quot;Conditional reproduction rate&quot;,
+    legend=false, color=:orchid, alpha=0.7)</code></pre><h3 id="Combined-Vital-Rate-Profile"><a class="docs-heading-anchor" href="#Combined-Vital-Rate-Profile">Combined Vital Rate Profile</a><a id="Combined-Vital-Rate-Profile-1"></a><a class="docs-heading-anchor-permalink" href="#Combined-Vital-Rate-Profile" title="Permalink"></a></h3><pre><code class="language- hljs">data = hcat(surv, growth, stasis, shrink)
+vr_labels = [&quot;Survival&quot;, &quot;Growth&quot;, &quot;Stasis&quot;, &quot;Shrinkage&quot;]
+vr_colors = [:teal :forestgreen :goldenrod :indianred]
+n_groups = length(stage_names)
+n_cats = 4
+width = 0.2
+offsets = (-(n_cats-1)/2:(n_cats-1)/2) .* width
+p = plot(xlabel=&quot;Stage&quot;, ylabel=&quot;Probability&quot;,
+    title=&quot;Vital rate decomposition&quot;, legend=:topright)
+for j in 1:n_cats
+    bar!(p, (1:n_groups) .+ offsets[j], data[:, j],
+        bar_width=width, label=vr_labels[j],
+        color=vr_colors[j], alpha=0.7)
+end
+plot!(p, xticks=(1:n_groups, String.(stage_names)))
+p</code></pre><h2 id="Weighted-Mean-Vital-Rates"><a class="docs-heading-anchor" href="#Weighted-Mean-Vital-Rates">Weighted Mean Vital Rates</a><a id="Weighted-Mean-Vital-Rates-1"></a><a class="docs-heading-anchor-permalink" href="#Weighted-Mean-Vital-Rates" title="Permalink"></a></h2><p>For summary comparisons across species, we compute mean vital rates weighted by the stable stage distribution:</p><pre><code class="language-julia hljs">println(&quot;Mean survival:    &quot;, round(vr_survival(U), digits=4))
+println(&quot;Mean growth:      &quot;, round(vr_growth(U), digits=4))
+println(&quot;Mean shrinkage:   &quot;, round(vr_shrinkage(U), digits=4))
+println(&quot;Mean stasis:      &quot;, round(vr_stasis(U), digits=4))
+println(&quot;Mean fecundity:   &quot;, round(vr_fecundity(U, F), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Mean survival:    0.7443
+Mean growth:      0.1104
+Mean shrinkage:   0.1268
+Mean stasis:      0.7629
+Mean fecundity:   184.2464</code></pre><h3 id="Custom-Weights"><a class="docs-heading-anchor" href="#Custom-Weights">Custom Weights</a><a id="Custom-Weights-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-Weights" title="Permalink"></a></h3><p>You can supply custom weights instead of the stable distribution:</p><pre><code class="language-julia hljs"># Equal weighting across stages
+equal_weights = fill(1.0 / 5, 5)
+println(&quot;Equal-weighted mean survival: &quot;,
+    round(vr_survival(U; weights=equal_weights), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Equal-weighted mean survival: 0.57</code></pre><h2 id="Dormancy-Transitions"><a class="docs-heading-anchor" href="#Dormancy-Transitions">Dormancy Transitions</a><a id="Dormancy-Transitions-1"></a><a class="docs-heading-anchor-permalink" href="#Dormancy-Transitions" title="Permalink"></a></h2><p>For species with dormant stages (e.g., seed banks), we can extract dormancy entry and exit rates:</p><pre><code class="language-julia hljs"># Stages 1 (seed bank) is dormant
+dorm_enter = vr_vec_dorm_enter(U; dorm_stages=[1])
+dorm_exit = vr_vec_dorm_exit(U; dorm_stages=[1])
+
+println(&quot;Dormancy entry rates: &quot;, round.(dorm_enter, digits=4))
+println(&quot;Dormancy exit rates:  &quot;, round.(dorm_exit, digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dormancy entry rates: [0.0, 0.0, 0.0, 0.0, 0.0]
+Dormancy exit rates:  [0.3333, 0.0, 0.0, 0.0, 0.0]</code></pre><h2 id="Comparing-Species-from-COMPADRE/COMADRE"><a class="docs-heading-anchor" href="#Comparing-Species-from-COMPADRE/COMADRE">Comparing Species from COMPADRE/COMADRE</a><a id="Comparing-Species-from-COMPADRE/COMADRE-1"></a><a class="docs-heading-anchor-permalink" href="#Comparing-Species-from-COMPADRE/COMADRE" title="Permalink"></a></h2><p>Let us compare vital rate profiles across three contrasting life histories.</p><pre><code class="language-julia hljs"># Short-lived annual (like Arabidopsis)
+U_annual = [0.0  0.0
+            0.4  0.0]
+F_annual = [0.0  8.0
+            0.0  0.0]
+
+# Long-lived tree (like Tsuga canadensis, Eastern hemlock, from COMPADRE)
+U_tree = [0.00  0.00  0.00  0.00
+          0.01  0.55  0.00  0.00
+          0.00  0.10  0.85  0.00
+          0.00  0.00  0.05  0.98]
+F_tree = [0.0  0.0  5.0  50.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]
+
+# Coral (like Acropora, from COMADRE — high stasis, low growth)
+U_coral = [0.60  0.00  0.00  0.00
+           0.10  0.70  0.00  0.00
+           0.00  0.08  0.85  0.00
+           0.00  0.00  0.05  0.92]
+F_coral = [0.0  0.5  2.0  10.0
+           0.0  0.0  0.0  0.0
+           0.0  0.0  0.0  0.0
+           0.0  0.0  0.0  0.0]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4×4 Matrix{Float64}:
+ 0.0  0.5  2.0  10.0
+ 0.0  0.0  0.0   0.0
+ 0.0  0.0  0.0   0.0
+ 0.0  0.0  0.0   0.0</code></pre><pre><code class="language- hljs">species = [&quot;Annual&quot;, &quot;Perennial herb&quot;, &quot;Tree&quot;, &quot;Coral&quot;]
+U_list = [U_annual, U, U_tree, U_coral]
+data = zeros(4, 4)  # species × vital rates
+
+for (i, Ui) in enumerate(U_list)
+    data[i, 1] = vr_survival(Ui)
+    data[i, 2] = vr_growth(Ui)
+    data[i, 3] = vr_stasis(Ui)
+    data[i, 4] = vr_shrinkage(Ui)
+end
+
+vr_labels2 = [&quot;Survival&quot;, &quot;Growth&quot;, &quot;Stasis&quot;, &quot;Shrinkage&quot;]
+vr_colors2 = [:teal :forestgreen :goldenrod :indianred]
+n_sp = length(species)
+n_vr = 4
+w2 = 0.2
+off2 = (-(n_vr-1)/2:(n_vr-1)/2) .* w2
+p2 = plot(xlabel=&quot;Species&quot;, ylabel=&quot;Weighted mean rate&quot;,
+    title=&quot;Vital rate profiles across life histories&quot;,
+    legend=:topright, size=(700, 400))
+for j in 1:n_vr
+    bar!(p2, (1:n_sp) .+ off2[j], data[:, j],
+        bar_width=w2, label=vr_labels2[j],
+        color=vr_colors2[j], alpha=0.7)
+end
+plot!(p2, xticks=(1:n_sp, species))
+p2</code></pre><p>Trees and corals are characterized by high stasis and survival; annuals have high growth but low survival. This pattern reflects the classic fast-slow life history continuum.</p><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this vignette we:</p><ol><li>Decomposed MPMs into six vital rate categories (survival, growth, shrinkage, stasis, reproduction, dormancy)</li><li>Visualized stage-specific vital rate profiles</li><li>Computed weighted mean vital rates for cross-species comparison</li><li>Compared vital rate profiles across four contrasting life histories</li></ol><p>The next vignette covers age-from-stage analysis and life table construction.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../03_construction/">« Model Construction and Random Generation</a><a class="docs-footer-nextpage" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

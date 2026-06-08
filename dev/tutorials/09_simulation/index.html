@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Population Simulation and Density Dependence · MatrixProjectionModels.jl</title><meta name="title" content="Population Simulation and Density Dependence · MatrixProjectionModels.jl"/><meta property="og:title" content="Population Simulation and Density Dependence · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Population Simulation and Density Dependence · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/09_simulation/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/09_simulation/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/09_simulation/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li class="is-active"><a class="tocitem" href>Population Simulation and Density Dependence</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#Deterministic-Projection"><span>Deterministic Projection</span></a></li><li><a class="tocitem" href="#Density-Dependent-MPMs"><span>Density-Dependent MPMs</span></a></li><li><a class="tocitem" href="#Population-Viability-Analysis-(PVA)"><span>Population Viability Analysis (PVA)</span></a></li><li><a class="tocitem" href="#SciML-Integration"><span>SciML Integration</span></a></li><li><a class="tocitem" href="#Comparing-Management-Scenarios"><span>Comparing Management Scenarios</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Population Simulation and Density Dependence</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Population Simulation and Density Dependence</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/09_simulation.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Population-Simulation-and-Density-Dependence"><a class="docs-heading-anchor" href="#Population-Simulation-and-Density-Dependence">Population Simulation and Density Dependence</a><a id="Population-Simulation-and-Density-Dependence-1"></a><a class="docs-heading-anchor-permalink" href="#Population-Simulation-and-Density-Dependence" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>This vignette demonstrates population projection using the <code>MPMProblem</code>/<code>solve</code> interface, including deterministic iteration, density-dependent dynamics, and integration with the SciML ecosystem. We use MPMs from COMPADRE and COMADRE to illustrate transient dynamics, population viability assessment, and equilibrium analysis.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using Plots
+using LinearAlgebra
+using Statistics
+using Random</code></pre><h2 id="Deterministic-Projection"><a class="docs-heading-anchor" href="#Deterministic-Projection">Deterministic Projection</a><a id="Deterministic-Projection-1"></a><a class="docs-heading-anchor-permalink" href="#Deterministic-Projection" title="Permalink"></a></h2><h3 id="Basic-Projection"><a class="docs-heading-anchor" href="#Basic-Projection">Basic Projection</a><a id="Basic-Projection-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Projection" title="Permalink"></a></h3><p>The simplest use case: project a population forward from an initial state.</p><pre><code class="language-julia hljs"># Desert tortoise MPM (Doak et al. 1994)
+U = [0.0    0.0    0.0    0.0    0.0
+     0.716  0.567  0.0    0.0    0.0
+     0.0    0.149  0.567  0.0    0.0
+     0.0    0.0    0.149  0.604  0.0
+     0.0    0.0    0.0    0.235  0.817]
+F = [0.0  0.0  0.0  0.0  1.3
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0]
+
+mpm = MatrixProjectionModel(U, F;
+    stage_names=[:yearling, :sm_juv, :lg_juv, :immature, :adult])
+n0 = [200.0, 100.0, 50.0, 30.0, 20.0]  # 400 total
+
+prob = MPMProblem(mpm, n0, (0, 100))
+sol = solve(prob, DirectIteration())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MPMSolution(101 timesteps, retcode=Success)</code></pre><pre><code class="language- hljs">total_pop = [sum(u) for u in sol.u]
+
+plot(0:100, total_pop,
+    xlabel=&quot;Year&quot;, ylabel=&quot;Total population&quot;,
+    title=&quot;Desert tortoise — 100-year projection&quot;,
+    label=&quot;N(t)&quot;, linewidth=2, yscale=:log10)</code></pre><h3 id="Transient-Dynamics"><a class="docs-heading-anchor" href="#Transient-Dynamics">Transient Dynamics</a><a id="Transient-Dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Transient-Dynamics" title="Permalink"></a></h3><p>Before converging to stable growth, populations exhibit <strong>transient dynamics</strong> that depend on the initial stage structure:</p><pre><code class="language- hljs"># Three different starting conditions
+starts = [
+    ([400.0, 0.0, 0.0, 0.0, 0.0], &quot;All yearlings&quot;),
+    ([0.0, 0.0, 0.0, 0.0, 400.0], &quot;All adults&quot;),
+    ([80.0, 80.0, 80.0, 80.0, 80.0], &quot;Equal distribution&quot;),
+]
+
+p = plot(xlabel=&quot;Year&quot;, ylabel=&quot;λ(t)&quot;,
+    title=&quot;Transient dynamics — effect of initial structure&quot;,
+    legend=:bottomright)
+
+for (n0_i, label) in starts
+    prob_i = MPMProblem(mpm, n0_i, (0, 30))
+    sol_i = solve(prob_i, DirectIteration())
+    plot!(p, sol_i.lambdas, label=label, linewidth=2)
+end
+hline!(p, [lambda(mpm)], label=&quot;Asymptotic λ&quot;, linestyle=:dash, color=:black)
+p</code></pre><h3 id="Eigenanalysis-Mode"><a class="docs-heading-anchor" href="#Eigenanalysis-Mode">Eigenanalysis Mode</a><a id="Eigenanalysis-Mode-1"></a><a class="docs-heading-anchor-permalink" href="#Eigenanalysis-Mode" title="Permalink"></a></h3><p>For computing only eigenvalues and eigenvectors (without full projection):</p><pre><code class="language-julia hljs">sol_eigen = solve(prob, EigenAnalysis())
+
+println(&quot;λ = &quot;, round(lambda(sol_eigen), digits=6))
+println(&quot;Stable distribution: &quot;, round.(stable_distribution(sol_eigen), digits=4))
+println(&quot;Reproductive value: &quot;, round.(reproductive_value(sol_eigen), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">λ = 0.93399
+Stable distribution: [0.2075, 0.4048, 0.1644, 0.0742, 0.1491]
+Reproductive value: [0.2851, 0.3719, 0.916, 2.2561, 3.168]</code></pre><h2 id="Density-Dependent-MPMs"><a class="docs-heading-anchor" href="#Density-Dependent-MPMs">Density-Dependent MPMs</a><a id="Density-Dependent-MPMs-1"></a><a class="docs-heading-anchor-permalink" href="#Density-Dependent-MPMs" title="Permalink"></a></h2><p>In density-dependent models, the projection matrix is a function of current population size. This produces bounded, realistic population trajectories rather than unbounded exponential growth or decline.</p><h3 id="Ceiling-Model"><a class="docs-heading-anchor" href="#Ceiling-Model">Ceiling Model</a><a id="Ceiling-Model-1"></a><a class="docs-heading-anchor-permalink" href="#Ceiling-Model" title="Permalink"></a></h3><p>The simplest density dependence: vital rates decline when the population exceeds a carrying capacity <span>$K$</span>.</p><pre><code class="language-julia hljs">K = 500.0  # carrying capacity
+
+# Matrix function: reduce survival when N &gt; K
+function dd_matrix(n, p, t)
+    N = sum(n)
+    # Reduce survival proportionally when N exceeds K
+    density_effect = min(1.0, K / max(N, 1.0))
+    U_dd = U * density_effect
+    return U_dd + F
+end
+
+prob_dd = MPMProblem(
+    DensityDependent(),
+    dd_matrix,
+    n0, (0, 200))
+
+sol_dd = solve(prob_dd, DirectIteration())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MPMSolution(201 timesteps, retcode=Success)</code></pre><pre><code class="language- hljs">total_dd = [sum(u) for u in sol_dd.u]
+
+plot(0:200, total_dd,
+    xlabel=&quot;Year&quot;, ylabel=&quot;Total population&quot;,
+    title=&quot;Density-dependent dynamics (ceiling model, K=$K)&quot;,
+    label=&quot;N(t)&quot;, linewidth=2, color=:blue)
+hline!([K], label=&quot;Carrying capacity K&quot;, linestyle=:dash, color=:red)</code></pre><h3 id="Beverton-Holt-Density-Dependence"><a class="docs-heading-anchor" href="#Beverton-Holt-Density-Dependence">Beverton-Holt Density Dependence</a><a id="Beverton-Holt-Density-Dependence-1"></a><a class="docs-heading-anchor-permalink" href="#Beverton-Holt-Density-Dependence" title="Permalink"></a></h3><p>A more biologically realistic model where fecundity follows a Beverton-Holt function:</p><pre><code class="language-julia hljs">function bh_matrix(n, p, t)
+    N = sum(n)
+    # Beverton-Holt fecundity reduction
+    f_max = 1.3  # maximum per-capita fecundity (adult stage)
+    alpha = 0.005  # strength of density dependence
+    f_dd = f_max / (1.0 + alpha * N)
+
+    F_dd = zeros(5, 5)
+    F_dd[1, 5] = f_dd
+
+    return U + F_dd
+end
+
+prob_bh = MPMProblem(
+    DensityDependent(),
+    bh_matrix,
+    n0, (0, 300))
+
+sol_bh = solve(prob_bh, DirectIteration())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MPMSolution(301 timesteps, retcode=Success)</code></pre><pre><code class="language- hljs">total_bh = [sum(u) for u in sol_bh.u]
+
+plot(0:300, total_bh,
+    xlabel=&quot;Year&quot;, ylabel=&quot;Total population&quot;,
+    title=&quot;Beverton-Holt density dependence&quot;,
+    label=&quot;N(t)&quot;, linewidth=2, color=:purple)</code></pre><h3 id="Finding-Equilibrium"><a class="docs-heading-anchor" href="#Finding-Equilibrium">Finding Equilibrium</a><a id="Finding-Equilibrium-1"></a><a class="docs-heading-anchor-permalink" href="#Finding-Equilibrium" title="Permalink"></a></h3><p>At equilibrium, <span>$\lambda(\mathbf{A}(N^*)) = 1$</span>. We can find <span>$N^*$</span> by running the density-dependent model to convergence:</p><pre><code class="language-julia hljs">N_star = total_bh[end]
+println(&quot;Equilibrium population N* ≈ &quot;, round(N_star, digits=1))
+
+# Verify: λ at equilibrium should be ≈ 1
+A_eq = bh_matrix(sol_bh.u[end], nothing, 0)
+lambda_eq = lambda(A_eq)
+println(&quot;λ at equilibrium = &quot;, round(lambda_eq, digits=6))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Equilibrium population N* ≈ 0.0
+λ at equilibrium = 0.93399</code></pre><h2 id="Population-Viability-Analysis-(PVA)"><a class="docs-heading-anchor" href="#Population-Viability-Analysis-(PVA)">Population Viability Analysis (PVA)</a><a id="Population-Viability-Analysis-(PVA)-1"></a><a class="docs-heading-anchor-permalink" href="#Population-Viability-Analysis-(PVA)" title="Permalink"></a></h2><p>PVA combines stochastic dynamics with population thresholds to estimate extinction risk. We run many simulations and count how often the population drops below a quasi-extinction threshold.</p><pre><code class="language- hljs">using Random
+Random.seed!(123)
+
+# Stochastic matrices for good/bad years
+A_good = U * 1.1 + F * 1.2  # above-average survival and fecundity
+A_bad = U * 0.85 + F * 0.3  # poor survival and fecundity
+
+mpm_good = MatrixProjectionModel(A_good)
+mpm_bad = MatrixProjectionModel(A_bad)
+
+quasi_ext_threshold = 20.0
+n_sims = 100
+tspan = (0, 100)
+
+extinct_count = 0
+trajectories = []
+
+for sim in 1:n_sims
+    prob_pva = MPMProblem(
+        StochasticKernelResampled(),
+        [mpm_good, mpm_bad],
+        n0, tspan)
+    sol_pva = solve(prob_pva, DirectIteration())
+    total = [sum(u) for u in sol_pva.u]
+    push!(trajectories, total)
+    if any(total .&lt; quasi_ext_threshold)
+        extinct_count += 1
+    end
+end
+
+println(&quot;Quasi-extinction probability (100 years): &quot;,
+    round(extinct_count / n_sims, digits=2))</code></pre><pre><code class="language- hljs">p = plot(xlabel=&quot;Year&quot;, ylabel=&quot;Total population&quot;,
+    title=&quot;Population viability analysis ($n_sims simulations)&quot;,
+    yscale=:log10, legend=:topleft)
+
+for traj in trajectories
+    plot!(p, 0:100, max.(traj, 0.1), alpha=0.1, color=:blue, label=false)
+end
+hline!(p, [quasi_ext_threshold], label=&quot;Quasi-extinction threshold&quot;,
+    color=:red, linewidth=2, linestyle=:dash)
+p</code></pre><h2 id="SciML-Integration"><a class="docs-heading-anchor" href="#SciML-Integration">SciML Integration</a><a id="SciML-Integration-1"></a><a class="docs-heading-anchor-permalink" href="#SciML-Integration" title="Permalink"></a></h2><p>MatrixProjectionModels integrates with the SciML ecosystem via <code>to_discrete_problem</code>, allowing use of standard SciML solvers and callbacks.</p><pre><code class="language-julia hljs">prob_sciml = to_discrete_problem(prob)
+println(&quot;SciML problem type: &quot;, typeof(prob_sciml))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SciML problem type: SciMLBase.DiscreteProblem{Vector{Float64}, Tuple{Int64, Int64}, false, Nothing, SciMLBase.DiscreteFunction{false, SciMLBase.AutoSpecialize, MatrixProjectionModels.var&quot;#to_discrete_problem##0#to_discrete_problem##1&quot;{Matrix{Float64}}, Nothing, typeof(SciMLBase.DEFAULT_OBSERVED), Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Nothing, @NamedTuple{}}}</code></pre><h2 id="Comparing-Management-Scenarios"><a class="docs-heading-anchor" href="#Comparing-Management-Scenarios">Comparing Management Scenarios</a><a id="Comparing-Management-Scenarios-1"></a><a class="docs-heading-anchor-permalink" href="#Comparing-Management-Scenarios" title="Permalink"></a></h2><p>A common application: compare population trajectories under different management interventions.</p><pre><code class="language- hljs"># Baseline: declining population
+U_base = U
+F_base = F
+
+# Scenario 1: Improve adult survival by 10%
+U_s1 = copy(U_base)
+U_s1[5, 5] = min(U_base[5, 5] * 1.10, 0.99)
+
+# Scenario 2: Improve juvenile survival (large juv + subadult) by 15%
+U_s2 = copy(U_base)
+U_s2[3, 3] = min(U_base[3, 3] * 1.15, 0.99)
+U_s2[4, 4] = min(U_base[4, 4] * 1.15, 0.99)
+
+# Scenario 3: Double fecundity (egg protection)
+F_s3 = F_base * 2.0
+
+scenarios = [
+    (U_base + F_base, &quot;Baseline&quot;),
+    (U_s1 + F_base, &quot;Adult survival +10%&quot;),
+    (U_s2 + F_base, &quot;Juvenile survival +15%&quot;),
+    (U_base + F_s3, &quot;Fecundity ×2&quot;),
+]
+
+p = plot(xlabel=&quot;Year&quot;, ylabel=&quot;Total population&quot;,
+    title=&quot;Management scenario comparison — Desert tortoise&quot;,
+    yscale=:log10, legend=:bottomleft)
+
+for (A_scen, label) in scenarios
+    mpm_s = MatrixProjectionModel(A_scen)
+    prob_s = MPMProblem(mpm_s, n0, (0, 50))
+    sol_s = solve(prob_s, DirectIteration())
+    total_s = [sum(u) for u in sol_s.u]
+    plot!(p, 0:50, total_s, label=&quot;$label (λ=$(round(lambda(mpm_s), digits=3)))&quot;,
+        linewidth=2)
+end
+p</code></pre><p>The scenario comparison confirms the perturbation analysis from the previous vignette: improving juvenile/adult survival has a much larger effect on population trajectory than doubling egg production.</p><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this vignette we:</p><ol><li>Projected populations deterministically and examined transient dynamics</li><li>Used <code>EigenAnalysis()</code> for eigenvalue/eigenvector computation</li><li>Implemented density-dependent MPMs (ceiling and Beverton-Holt models)</li><li>Found equilibrium population size <span>$N^*$</span></li><li>Conducted population viability analysis (PVA) with extinction risk estimation</li><li>Integrated with the SciML ecosystem</li><li>Compared management scenarios for conservation</li></ol><p>The next vignette covers comparative demography across multiple COMPADRE/COMADRE species.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../08_stochastic/">« Stochastic Matrix Projection Models</a><a class="docs-footer-nextpage" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

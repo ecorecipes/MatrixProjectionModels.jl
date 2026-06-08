@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Life History Traits · MatrixProjectionModels.jl</title><meta name="title" content="Life History Traits · MatrixProjectionModels.jl"/><meta property="og:title" content="Life History Traits · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Life History Traits · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/06_life_history/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/06_life_history/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/06_life_history/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li class="is-active"><a class="tocitem" href>Life History Traits</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#Example-Species"><span>Example Species</span></a></li><li><a class="tocitem" href="#Life-Expectancy"><span>Life Expectancy</span></a></li><li><a class="tocitem" href="#Longevity"><span>Longevity</span></a></li><li><a class="tocitem" href="#Net-Reproductive-Rate"><span>Net Reproductive Rate</span></a></li><li><a class="tocitem" href="#Generation-Time"><span>Generation Time</span></a></li><li><a class="tocitem" href="#Maturity"><span>Maturity</span></a></li><li><a class="tocitem" href="#Entropy-and-Senescence"><span>Entropy and Senescence</span></a></li><li><a class="tocitem" href="#Shape-of-Survivorship-and-Reproduction"><span>Shape of Survivorship and Reproduction</span></a></li><li><a class="tocitem" href="#Comparative-Life-History-Summary"><span>Comparative Life History Summary</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Life History Traits</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Life History Traits</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/06_life_history.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Life-History-Traits"><a class="docs-heading-anchor" href="#Life-History-Traits">Life History Traits</a><a id="Life-History-Traits-1"></a><a class="docs-heading-anchor-permalink" href="#Life-History-Traits" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>Matrix projection models encode a species&#39; entire demographic strategy. From the survival matrix <span>$\mathbf{U}$</span> and fecundity matrix <span>$\mathbf{F}$</span>, we can derive a suite of <strong>life history traits</strong>: life expectancy, generation time, net reproductive rate, age at maturity, longevity, and senescence measures. This vignette demonstrates all trait calculations available in MatrixProjectionModels.jl and compares traits across species from COMPADRE and COMADRE.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using Plots
+using LinearAlgebra</code></pre><h2 id="Example-Species"><a class="docs-heading-anchor" href="#Example-Species">Example Species</a><a id="Example-Species-1"></a><a class="docs-heading-anchor-permalink" href="#Example-Species" title="Permalink"></a></h2><p>We define three contrasting species for comparison.</p><pre><code class="language-julia hljs"># 1. Short-lived annual plant (like Arabidopsis from COMPADRE)
+#    2 stages: vegetative, reproductive
+U_annual = [0.00  0.00
+            0.40  0.00]
+F_annual = [0.0  8.0
+            0.0  0.0]
+
+# 2. Medium-lived perennial herb (like Calathea ovandensis from COMPADRE)
+#    4 stages: seed, juvenile, vegetative adult, reproductive adult
+U_herb = [0.10  0.00  0.00  0.00
+          0.05  0.40  0.00  0.00
+          0.00  0.20  0.60  0.05
+          0.00  0.00  0.20  0.75]
+F_herb = [0.0  0.0  0.0  25.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]
+
+# 3. Long-lived tree (like Tsuga from COMPADRE)
+#    4 stages: seedling, sapling, small tree, large tree
+U_tree = [0.40  0.00  0.00  0.00
+          0.10  0.75  0.00  0.00
+          0.00  0.05  0.92  0.00
+          0.00  0.00  0.03  0.98]
+F_tree = [0.0  0.0  2.0  40.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]
+
+species_names = [&quot;Annual&quot;, &quot;Perennial herb&quot;, &quot;Tree&quot;]
+U_list = [U_annual, U_herb, U_tree]
+F_list = [F_annual, F_herb, F_tree]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3-element Vector{Matrix{Float64}}:
+ [0.0 8.0; 0.0 0.0]
+ [0.0 0.0 0.0 25.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0]
+ [0.0 0.0 2.0 40.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0]</code></pre><h2 id="Life-Expectancy"><a class="docs-heading-anchor" href="#Life-Expectancy">Life Expectancy</a><a id="Life-Expectancy-1"></a><a class="docs-heading-anchor-permalink" href="#Life-Expectancy" title="Permalink"></a></h2><p>Mean life expectancy from a given starting stage, derived from the fundamental matrix <span>$\mathbf{N} = (\mathbf{I} - \mathbf{U})^{-1}$</span>:</p><p class="math-container">\[E[T] = \mathbf{e}_{\text{start}}^\top \mathbf{N} \mathbf{1}\]</p><pre><code class="language-julia hljs">for (name, U) in zip(species_names, U_list)
+    le = life_expect_mean(U; start=1)
+    println(&quot;$name — mean life expectancy: &quot;, round(le, digits=2), &quot; time steps&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — mean life expectancy: 1.0 time steps
+Perennial herb — mean life expectancy: 1.11 time steps
+Tree — mean life expectancy: 1.67 time steps</code></pre><h3 id="Variance-in-Life-Expectancy"><a class="docs-heading-anchor" href="#Variance-in-Life-Expectancy">Variance in Life Expectancy</a><a id="Variance-in-Life-Expectancy-1"></a><a class="docs-heading-anchor-permalink" href="#Variance-in-Life-Expectancy" title="Permalink"></a></h3><pre><code class="language-julia hljs">for (name, U) in zip(species_names, U_list)
+    v = life_expect_var(U; start=1)
+    println(&quot;$name — variance in life expectancy: &quot;, round(v, digits=2))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — variance in life expectancy: 0.0
+Perennial herb — variance in life expectancy: 0.12
+Tree — variance in life expectancy: 1.11</code></pre><h2 id="Longevity"><a class="docs-heading-anchor" href="#Longevity">Longevity</a><a id="Longevity-1"></a><a class="docs-heading-anchor-permalink" href="#Longevity" title="Permalink"></a></h2><p>The age at which survivorship drops below a threshold (default 1%):</p><pre><code class="language-julia hljs">for (name, U) in zip(species_names, U_list)
+    l = longevity(U; start=1, lx_crit=0.01)
+    println(&quot;$name — longevity (l(x) &lt; 0.01): age &quot;, l)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — longevity (l(x) &lt; 0.01): age 2
+Perennial herb — longevity (l(x) &lt; 0.01): age 6
+Tree — longevity (l(x) &lt; 0.01): age 38</code></pre><h2 id="Net-Reproductive-Rate"><a class="docs-heading-anchor" href="#Net-Reproductive-Rate">Net Reproductive Rate</a><a id="Net-Reproductive-Rate-1"></a><a class="docs-heading-anchor-permalink" href="#Net-Reproductive-Rate" title="Permalink"></a></h2><p>The net reproductive rate <span>$R_0$</span> is the expected number of offspring produced by an individual over its lifetime. A population grows if <span>$R_0 &gt; 1$</span>:</p><p class="math-container">\[R_0 = \sum_x l(x) \cdot m(x)\]</p><pre><code class="language-julia hljs">for (name, U, F) in zip(species_names, U_list, F_list)
+    R0 = net_repro_rate(U, F; start=1)
+    println(&quot;$name — R₀ = &quot;, round(R0, digits=4))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — R₀ = 3.2
+Perennial herb — R₀ = 0.3725
+Tree — R₀ = 9.2795</code></pre><h2 id="Generation-Time"><a class="docs-heading-anchor" href="#Generation-Time">Generation Time</a><a id="Generation-Time-1"></a><a class="docs-heading-anchor-permalink" href="#Generation-Time" title="Permalink"></a></h2><p>The mean age of parents of offspring produced at the stable stage distribution. Three methods are available:</p><ol><li><strong><code>:R0</code></strong> — <span>$T = \log(R_0) / \log(\lambda)$</span> (most common)</li><li><strong><code>:cohort</code></strong> — Mean age of reproduction in a cohort</li><li><strong><code>:age_diff</code></strong> — Mean age of parents minus mean age of offspring</li></ol><pre><code class="language-julia hljs">for (name, U, F) in zip(species_names, U_list, F_list)
+    T_r0 = gen_time(U, F; start=1, method=:R0)
+    T_coh = gen_time(U, F; start=1, method=:cohort)
+    println(&quot;$name — generation time: R₀ method = &quot;, round(T_r0, digits=2),
+        &quot;, cohort method = &quot;, round(T_coh, digits=2))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — generation time: R₀ method = 2.0, cohort method = 1.0
+Perennial herb — generation time: R₀ method = -346.56, cohort method = 4.8
+Tree — generation time: R₀ method = 19.74, cohort method = 23.52</code></pre><h2 id="Maturity"><a class="docs-heading-anchor" href="#Maturity">Maturity</a><a id="Maturity-1"></a><a class="docs-heading-anchor-permalink" href="#Maturity" title="Permalink"></a></h2><h3 id="Probability-of-Reaching-Maturity"><a class="docs-heading-anchor" href="#Probability-of-Reaching-Maturity">Probability of Reaching Maturity</a><a id="Probability-of-Reaching-Maturity-1"></a><a class="docs-heading-anchor-permalink" href="#Probability-of-Reaching-Maturity" title="Permalink"></a></h3><p>The probability that a newborn will survive to first reach a reproductive stage:</p><pre><code class="language-julia hljs">for (name, U, F) in zip(species_names, U_list, F_list)
+    p = mature_prob(U, F; start=1)
+    println(&quot;$name — P(maturity) = &quot;, round(p, digits=4))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — P(maturity) = 0.4
+Perennial herb — P(maturity) = 0.0093
+Tree — P(maturity) = 0.0333</code></pre><h3 id="Mean-Age-at-First-Reproduction"><a class="docs-heading-anchor" href="#Mean-Age-at-First-Reproduction">Mean Age at First Reproduction</a><a id="Mean-Age-at-First-Reproduction-1"></a><a class="docs-heading-anchor-permalink" href="#Mean-Age-at-First-Reproduction" title="Permalink"></a></h3><pre><code class="language-julia hljs">for (name, U, F) in zip(species_names, U_list, F_list)
+    a = mature_age(U, F; start=1)
+    println(&quot;$name — mean age at maturity = &quot;, round(a, digits=2))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — mean age at maturity = 1.0
+Perennial herb — mean age at maturity = 1.11
+Tree — mean age at maturity = 1.67</code></pre><h2 id="Entropy-and-Senescence"><a class="docs-heading-anchor" href="#Entropy-and-Senescence">Entropy and Senescence</a><a id="Entropy-and-Senescence-1"></a><a class="docs-heading-anchor-permalink" href="#Entropy-and-Senescence" title="Permalink"></a></h2><h3 id="Keyfitz&#39;s-Entropy"><a class="docs-heading-anchor" href="#Keyfitz&#39;s-Entropy">Keyfitz&#39;s Entropy</a><a id="Keyfitz&#39;s-Entropy-1"></a><a class="docs-heading-anchor-permalink" href="#Keyfitz&#39;s-Entropy" title="Permalink"></a></h3><p>Keyfitz&#39;s entropy <span>$H$</span> measures the shape of the survivorship curve. <span>$H &lt; 1$</span> indicates Type I (convex) curves, <span>$H = 1$</span> indicates Type II (exponential), and <span>$H &gt; 1$</span> indicates Type III (concave) curves:</p><p class="math-container">\[H = -\frac{\sum l(x) \log l(x)}{\sum l(x)}\]</p><pre><code class="language-julia hljs">for (name, U) in zip(species_names, U_list)
+    H = entropy_k_stage(U)
+    curve_type = H &lt; 1 ? &quot;Type I (convex)&quot; :
+                 H ≈ 1 ? &quot;Type II (exponential)&quot; : &quot;Type III (concave)&quot;
+    println(&quot;$name — Keyfitz H = &quot;, round(H, digits=4), &quot; → &quot;, curve_type)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — Keyfitz H = 0.2618 → Type I (convex)
+Perennial herb — Keyfitz H = 0.5433 → Type I (convex)
+Tree — Keyfitz H = 1.4371 → Type III (concave)</code></pre><h3 id="Demetrius&#39;-Entropy"><a class="docs-heading-anchor" href="#Demetrius&#39;-Entropy">Demetrius&#39; Entropy</a><a id="Demetrius&#39;-Entropy-1"></a><a class="docs-heading-anchor-permalink" href="#Demetrius&#39;-Entropy" title="Permalink"></a></h3><p>Demetrius&#39; entropy measures the diversity of the reproductive schedule:</p><pre><code class="language-julia hljs">for (name, U, F) in zip(species_names, U_list, F_list)
+    lx = mpm_to_lx(U; start=1)
+    mx = mpm_to_mx(U, F; start=1)
+    if length(mx) &gt; 0 &amp;&amp; any(mx .&gt; 0)
+        S = entropy_d(lx[1:length(mx)], mx)
+        println(&quot;$name — Demetrius&#39; entropy = &quot;, round(S, digits=4))
+    end
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — Demetrius&#39; entropy = 0.0
+Perennial herb — Demetrius&#39; entropy = 1.3411
+Tree — Demetrius&#39; entropy = 3.5103</code></pre><h2 id="Shape-of-Survivorship-and-Reproduction"><a class="docs-heading-anchor" href="#Shape-of-Survivorship-and-Reproduction">Shape of Survivorship and Reproduction</a><a id="Shape-of-Survivorship-and-Reproduction-1"></a><a class="docs-heading-anchor-permalink" href="#Shape-of-Survivorship-and-Reproduction" title="Permalink"></a></h2><p>The <code>shape_surv</code> and <code>shape_rep</code> functions quantify the shape of survivorship and reproductive curves on a standardized scale from -1/6 (strongly Type III / early reproduction) to +1/6 (strongly Type I / late reproduction):</p><pre><code class="language-julia hljs">for (name, U, F) in zip(species_names, U_list, F_list)
+    lx = mpm_to_lx(U; start=1)
+    s_surv = shape_surv(lx)
+    s_rep = shape_rep(U, F; start=1)
+    println(&quot;$name — shape(survival) = &quot;, round(s_surv, digits=4),
+        &quot;, shape(reproduction) = &quot;, round(s_rep, digits=4))
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Annual — shape(survival) = -0.05, shape(reproduction) = 0.25
+Perennial herb — shape(survival) = -0.3744, shape(reproduction) = -0.2643
+Tree — shape(survival) = -0.436, shape(reproduction) = -0.1977</code></pre><h2 id="Comparative-Life-History-Summary"><a class="docs-heading-anchor" href="#Comparative-Life-History-Summary">Comparative Life History Summary</a><a id="Comparative-Life-History-Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Comparative-Life-History-Summary" title="Permalink"></a></h2><pre><code class="language-julia hljs">n = length(species_names)
+traits = zeros(n, 6)
+
+for i in 1:n
+    traits[i, 1] = lambda(U_list[i] + F_list[i])
+    traits[i, 2] = life_expect_mean(U_list[i]; start=1)
+    traits[i, 3] = gen_time(U_list[i], F_list[i]; start=1, method=:R0)
+    traits[i, 4] = net_repro_rate(U_list[i], F_list[i]; start=1)
+    traits[i, 5] = mature_age(U_list[i], F_list[i]; start=1)
+    traits[i, 6] = longevity(U_list[i]; start=1, lx_crit=0.01)
+end
+
+trait_names = [&quot;λ&quot;, &quot;Life expect.&quot;, &quot;Gen. time&quot;, &quot;R₀&quot;, &quot;Age maturity&quot;, &quot;Longevity&quot;]
+
+for j in 1:6
+    println(&quot;\n$(trait_names[j]):&quot;)
+    for i in 1:n
+        println(&quot;  $(species_names[i]): &quot;, round(traits[i, j], digits=3))
+    end
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">
+λ:
+  Annual: 1.789
+  Perennial herb: 1.003
+  Tree: 1.119
+
+Life expect.:
+  Annual: 1.0
+  Perennial herb: 1.111
+  Tree: 1.667
+
+Gen. time:
+  Annual: 2.0
+  Perennial herb: -346.564
+  Tree: 19.741
+
+R₀:
+  Annual: 3.2
+  Perennial herb: 0.372
+  Tree: 9.28
+
+Age maturity:
+  Annual: 1.0
+  Perennial herb: 1.111
+  Tree: 1.667
+
+Longevity:
+  Annual: 2.0
+  Perennial herb: 6.0
+  Tree: 38.0</code></pre><h3 id="Fast-Slow-Continuum"><a class="docs-heading-anchor" href="#Fast-Slow-Continuum">Fast-Slow Continuum</a><a id="Fast-Slow-Continuum-1"></a><a class="docs-heading-anchor-permalink" href="#Fast-Slow-Continuum" title="Permalink"></a></h3><p>The classic fast-slow life history continuum: short-lived species with high reproduction vs. long-lived species with delayed reproduction.</p><pre><code class="language- hljs">scatter(traits[:, 2], traits[:, 3],
+    xlabel=&quot;Mean life expectancy&quot;,
+    ylabel=&quot;Generation time&quot;,
+    title=&quot;Fast-slow continuum&quot;,
+    series_annotations=species_names,
+    markersize=8, legend=false,
+    color=[:red, :blue, :green])</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this vignette we:</p><ol><li>Computed life expectancy (mean and variance) from the fundamental matrix</li><li>Estimated longevity, net reproductive rate <span>$R_0$</span>, and generation time</li><li>Measured probability and age of maturity</li><li>Quantified senescence with Keyfitz&#39;s and Demetrius&#39; entropy</li><li>Characterized survivorship and reproduction shape</li><li>Compared life history traits across the fast-slow continuum</li></ol><p>The next vignette covers perturbation analysis (sensitivity and elasticity).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../05_life_tables/">« Life Tables and Age-from-Stage Analysis</a><a class="docs-footer-nextpage" href="../07_perturbation/">Perturbation Analysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

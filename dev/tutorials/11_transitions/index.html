@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Sparse Transition Constructors · MatrixProjectionModels.jl</title><meta name="title" content="Sparse Transition Constructors · MatrixProjectionModels.jl"/><meta property="og:title" content="Sparse Transition Constructors · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Sparse Transition Constructors · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/11_transitions/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/11_transitions/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/11_transitions/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li class="is-active"><a class="tocitem" href>Sparse Transition Constructors</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#The-Problem-with-Full-Matrices"><span>The Problem with Full Matrices</span></a></li><li><a class="tocitem" href="#Sparse-Transition-Syntax"><span>Sparse Transition Syntax</span></a></li><li><a class="tocitem" href="#Example:-Loggerhead-Sea-Turtle"><span>Example: Loggerhead Sea Turtle</span></a></li><li><a class="tocitem" href="#Example:-Leslie-Matrix-from-Sparse-Entries"><span>Example: Leslie Matrix from Sparse Entries</span></a></li><li><a class="tocitem" href="#Downstream-Analysis"><span>Downstream Analysis</span></a></li><li><a class="tocitem" href="#Handling-Edge-Cases"><span>Handling Edge Cases</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Sparse Transition Constructors</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Sparse Transition Constructors</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/11_transitions.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Sparse-Transition-Constructors"><a class="docs-heading-anchor" href="#Sparse-Transition-Constructors">Sparse Transition Constructors</a><a id="Sparse-Transition-Constructors-1"></a><a class="docs-heading-anchor-permalink" href="#Sparse-Transition-Constructors" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>Most real-world projection matrices are <strong>sparse</strong> — a 6-stage plant model may have only 10 of 36 possible transitions. Writing out full matrices by hand is tedious and error-prone, especially for large models. This vignette introduces a sparse transition DSL that lets you specify MPMs using <code>(from =&gt; to) =&gt; value</code> pairs, matching the way ecologists think about life cycle graphs.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using LinearAlgebra
+using Plots</code></pre><h2 id="The-Problem-with-Full-Matrices"><a class="docs-heading-anchor" href="#The-Problem-with-Full-Matrices">The Problem with Full Matrices</a><a id="The-Problem-with-Full-Matrices-1"></a><a class="docs-heading-anchor-permalink" href="#The-Problem-with-Full-Matrices" title="Permalink"></a></h2><p>Consider the Pitcher&#39;s thistle (<em>Cirsium pitcheri</em>), a 6-stage monocarpic perennial from the COMPADRE database (Loveless 1984; Hamze &amp; Jolls 2000). The traditional way to specify the model requires writing out two <span>$6 \times 6$</span> matrices:</p><pre><code class="language-julia hljs">U_thistle = [0.00  0.00  0.00  0.00  0.00  0.00
+             0.05  0.00  0.00  0.00  0.00  0.00
+             0.00  0.30  0.45  0.08  0.00  0.00
+             0.00  0.00  0.25  0.52  0.15  0.00
+             0.00  0.00  0.00  0.20  0.55  0.00
+             0.00  0.00  0.00  0.00  0.20  0.00]
+
+F_thistle = [0.0  0.0  0.0  0.0  0.0  350.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0]
+
+thistle_manual = MatrixProjectionModel(U_thistle, F_thistle;
+    stage_names=[:seed_bank, :seedling, :small, :medium, :large, :flowering])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MatrixProjectionModel{Float64} with 6 stages:
+  Stage names: [:seed_bank, :seedling, :small, :medium, :large, :flowering]
+  A (projection matrix):
+6×6 Matrix{Float64}:
+ 0.0   0.0  0.0   0.0   0.0   350.0
+ 0.05  0.0  0.0   0.0   0.0     0.0
+ 0.0   0.3  0.45  0.08  0.0     0.0
+ 0.0   0.0  0.25  0.52  0.15    0.0
+ 0.0   0.0  0.0   0.2   0.55    0.0
+ 0.0   0.0  0.0   0.0   0.2     0.0</code></pre><p>That is 72 numbers to type, of which 61 are zeros. The sparse transition syntax makes the nonzero entries explicit.</p><h2 id="Sparse-Transition-Syntax"><a class="docs-heading-anchor" href="#Sparse-Transition-Syntax">Sparse Transition Syntax</a><a id="Sparse-Transition-Syntax-1"></a><a class="docs-heading-anchor-permalink" href="#Sparse-Transition-Syntax" title="Permalink"></a></h2><h3 id="Convention"><a class="docs-heading-anchor" href="#Convention">Convention</a><a id="Convention-1"></a><a class="docs-heading-anchor-permalink" href="#Convention" title="Permalink"></a></h3><p>Each transition is specified as <code>(from =&gt; to) =&gt; value</code>, where <code>from</code> and <code>to</code> are stage names (symbols). This mirrors the arcs in a life cycle graph: an arrow from stage <code>from</code> to stage <code>to</code> with rate or probability <code>value</code>.</p><p>Internally, <code>(from =&gt; to) =&gt; value</code> sets <code>A[to_idx, from_idx] = value</code> — the standard column-to-row convention for projection matrices.</p><h3 id="A-Only-Construction"><a class="docs-heading-anchor" href="#A-Only-Construction">A-Only Construction</a><a id="A-Only-Construction-1"></a><a class="docs-heading-anchor-permalink" href="#A-Only-Construction" title="Permalink"></a></h3><p>When the <span>$\mathbf{U}$</span>/<span>$\mathbf{F}$</span>/<span>$\mathbf{C}$</span> decomposition is not needed, pass all transitions as positional arguments:</p><pre><code class="language-julia hljs">thistle_sparse = MatrixProjectionModel(
+    [:seed_bank, :seedling, :small, :medium, :large, :flowering],
+    # Survival/growth transitions
+    (:seed_bank =&gt; :seedling)  =&gt; 0.05,
+    (:seedling  =&gt; :small)     =&gt; 0.30,
+    (:small     =&gt; :small)     =&gt; 0.45,
+    (:small     =&gt; :medium)    =&gt; 0.25,
+    (:medium    =&gt; :small)     =&gt; 0.08,   # retrogression
+    (:medium    =&gt; :medium)    =&gt; 0.52,
+    (:medium    =&gt; :large)     =&gt; 0.20,
+    (:large     =&gt; :medium)    =&gt; 0.15,   # retrogression
+    (:large     =&gt; :large)     =&gt; 0.55,
+    (:large     =&gt; :flowering) =&gt; 0.20,
+    # Fecundity
+    (:flowering =&gt; :seed_bank) =&gt; 350.0)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MatrixProjectionModel{Float64} with 6 stages:
+  Stage names: [:seed_bank, :seedling, :small, :medium, :large, :flowering]
+  A (projection matrix):
+6×6 Matrix{Float64}:
+ 0.0   0.0  0.0   0.0   0.0   350.0
+ 0.05  0.0  0.0   0.0   0.0     0.0
+ 0.0   0.3  0.45  0.08  0.0     0.0
+ 0.0   0.0  0.25  0.52  0.15    0.0
+ 0.0   0.0  0.0   0.2   0.55    0.0
+ 0.0   0.0  0.0   0.0   0.2     0.0</code></pre><p>This produces the same matrix as the full specification:</p><pre><code class="language-julia hljs">println(&quot;Matrices equal: &quot;, thistle_sparse.A ≈ thistle_manual.A)
+println(&quot;λ (sparse):  &quot;, round(lambda(thistle_sparse), digits=4))
+println(&quot;λ (manual):  &quot;, round(lambda(thistle_manual), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Matrices equal: true
+λ (sparse):  0.9476
+λ (manual):  0.9476</code></pre><h3 id="U/F/C-Decomposition"><a class="docs-heading-anchor" href="#U/F/C-Decomposition">U/F/C Decomposition</a><a id="U/F/C-Decomposition-1"></a><a class="docs-heading-anchor-permalink" href="#U/F/C-Decomposition" title="Permalink"></a></h3><p>When you need the decomposition into survival (<span>$\mathbf{U}$</span>), fecundity (<span>$\mathbf{F}$</span>), and clonal reproduction (<span>$\mathbf{C}$</span>), pass each component as a keyword argument:</p><pre><code class="language-julia hljs">thistle_decomp = MatrixProjectionModel(
+    [:seed_bank, :seedling, :small, :medium, :large, :flowering];
+    U = [(:seed_bank =&gt; :seedling)  =&gt; 0.05,
+         (:seedling  =&gt; :small)     =&gt; 0.30,
+         (:small     =&gt; :small)     =&gt; 0.45,
+         (:small     =&gt; :medium)    =&gt; 0.25,
+         (:medium    =&gt; :small)     =&gt; 0.08,
+         (:medium    =&gt; :medium)    =&gt; 0.52,
+         (:medium    =&gt; :large)     =&gt; 0.20,
+         (:large     =&gt; :medium)    =&gt; 0.15,
+         (:large     =&gt; :large)     =&gt; 0.55,
+         (:large     =&gt; :flowering) =&gt; 0.20],
+    F = [(:flowering =&gt; :seed_bank) =&gt; 350.0])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MatrixProjectionModel{Float64} with 6 stages:
+  Stage names: [:seed_bank, :seedling, :small, :medium, :large, :flowering]
+  A (projection matrix):
+6×6 Matrix{Float64}:
+ 0.0   0.0  0.0   0.0   0.0   350.0
+ 0.05  0.0  0.0   0.0   0.0     0.0
+ 0.0   0.3  0.45  0.08  0.0     0.0
+ 0.0   0.0  0.25  0.52  0.15    0.0
+ 0.0   0.0  0.0   0.2   0.55    0.0
+ 0.0   0.0  0.0   0.0   0.2     0.0</code></pre><p>The decomposition is now fully specified:</p><pre><code class="language-julia hljs">println(&quot;A = U + F: &quot;, thistle_decomp.A ≈ thistle_decomp.U .+ thistle_decomp.F .+ thistle_decomp.C)
+println(&quot;U matches: &quot;, thistle_decomp.U ≈ U_thistle)
+println(&quot;F matches: &quot;, thistle_decomp.F ≈ F_thistle)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">A = U + F: true
+U matches: true
+F matches: true</code></pre><h2 id="Example:-Loggerhead-Sea-Turtle"><a class="docs-heading-anchor" href="#Example:-Loggerhead-Sea-Turtle">Example: Loggerhead Sea Turtle</a><a id="Example:-Loggerhead-Sea-Turtle-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Loggerhead-Sea-Turtle" title="Permalink"></a></h2><p>The loggerhead sea turtle model from Crouse, Crowder &amp; Caswell (1987) is another classic COMADRE example. With 5 stages, the sparse syntax is compact:</p><pre><code class="language-julia hljs">turtle = MatrixProjectionModel(
+    [:egg_hatch, :sm_juv, :lg_juv, :subadult, :adult];
+    U = [(:egg_hatch =&gt; :sm_juv)   =&gt; 0.6747,
+         (:sm_juv    =&gt; :sm_juv)   =&gt; 0.7370,
+         (:sm_juv    =&gt; :lg_juv)   =&gt; 0.0486,
+         (:lg_juv    =&gt; :lg_juv)   =&gt; 0.6610,
+         (:lg_juv    =&gt; :subadult) =&gt; 0.0147,
+         (:subadult  =&gt; :subadult) =&gt; 0.6907,
+         (:subadult  =&gt; :adult)    =&gt; 0.0518,
+         (:adult     =&gt; :adult)    =&gt; 0.8091],
+    F = [(:adult =&gt; :egg_hatch) =&gt; 127.0])
+
+println(&quot;Loggerhead sea turtle λ = &quot;, round(lambda(turtle), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Loggerhead sea turtle λ = 0.9706</code></pre><p>The sparse representation reads like a life cycle description: eggs hatch and become small juveniles with probability 0.6747; small juveniles either remain small (0.7370) or grow to large juveniles (0.0486); and so on.</p><h2 id="Example:-Leslie-Matrix-from-Sparse-Entries"><a class="docs-heading-anchor" href="#Example:-Leslie-Matrix-from-Sparse-Entries">Example: Leslie Matrix from Sparse Entries</a><a id="Example:-Leslie-Matrix-from-Sparse-Entries-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Leslie-Matrix-from-Sparse-Entries" title="Permalink"></a></h2><p>A Leslie (age-structured) matrix can also be built using sparse transitions:</p><pre><code class="language-julia hljs"># 4-age-class model
+leslie_sparse = MatrixProjectionModel(
+    [:age1, :age2, :age3, :age4];
+    U = [(:age1 =&gt; :age2) =&gt; 0.8,
+         (:age2 =&gt; :age3) =&gt; 0.7,
+         (:age3 =&gt; :age4) =&gt; 0.5],
+    F = [(:age1 =&gt; :age1) =&gt; 0.0,
+         (:age2 =&gt; :age1) =&gt; 1.5,
+         (:age3 =&gt; :age1) =&gt; 3.0,
+         (:age4 =&gt; :age1) =&gt; 2.0])
+
+# Compare with make_leslie_mpm
+leslie_vec = make_leslie_mpm([0.8, 0.7, 0.5], [0.0, 1.5, 3.0, 2.0])
+
+println(&quot;Matrices equal: &quot;, leslie_sparse.A ≈ leslie_vec.A)
+println(&quot;λ = &quot;, round(lambda(leslie_sparse), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Matrices equal: true
+λ = 1.5779</code></pre><h2 id="Downstream-Analysis"><a class="docs-heading-anchor" href="#Downstream-Analysis">Downstream Analysis</a><a id="Downstream-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Downstream-Analysis" title="Permalink"></a></h2><p>Models built with sparse transitions are standard <code>MatrixProjectionModel</code> objects — all existing analysis functions work directly.</p><h3 id="Eigenanalysis"><a class="docs-heading-anchor" href="#Eigenanalysis">Eigenanalysis</a><a id="Eigenanalysis-1"></a><a class="docs-heading-anchor-permalink" href="#Eigenanalysis" title="Permalink"></a></h3><pre><code class="language-julia hljs">ea = eigenanalysis_full(Matrix(turtle))
+println(&quot;λ = &quot;, round(ea.lambda, digits=4))
+println(&quot;Damping ratio = &quot;, round(damping_ratio(Matrix(turtle)), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">λ = 0.9706
+Damping ratio = 1.2381</code></pre><h3 id="Sensitivity-and-Elasticity"><a class="docs-heading-anchor" href="#Sensitivity-and-Elasticity">Sensitivity and Elasticity</a><a id="Sensitivity-and-Elasticity-1"></a><a class="docs-heading-anchor-permalink" href="#Sensitivity-and-Elasticity" title="Permalink"></a></h3><pre><code class="language- hljs">S = sensitivity(Matrix(turtle))
+E = elasticity(Matrix(turtle))
+
+stage_labels = String.(turtle.stage_names)
+p1 = heatmap(stage_labels, stage_labels, S,
+    title=&quot;Sensitivity&quot;, color=:viridis,
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;)
+
+p2 = heatmap(stage_labels, stage_labels, E,
+    title=&quot;Elasticity&quot;, color=:viridis,
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;)
+
+plot(p1, p2, layout=(1,2), size=(800, 350))</code></pre><h3 id="Life-History-Traits"><a class="docs-heading-anchor" href="#Life-History-Traits">Life History Traits</a><a id="Life-History-Traits-1"></a><a class="docs-heading-anchor-permalink" href="#Life-History-Traits" title="Permalink"></a></h3><pre><code class="language-julia hljs">println(&quot;Net reproductive rate R₀ = &quot;,
+    round(net_repro_rate(turtle.U, turtle.F), digits=4))
+println(&quot;Generation time T = &quot;,
+    round(gen_time(turtle.U, turtle.F), digits=2), &quot; years&quot;)
+println(&quot;Mean life expectancy = &quot;,
+    round(life_expect_mean(turtle.U)[end], digits=2), &quot; years (adults)&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Net reproductive rate R₀ = 0.417
+Generation time T = 29.27 years
+Mean life expectancy = 1.0 years (adults)</code></pre><h3 id="Population-Projection"><a class="docs-heading-anchor" href="#Population-Projection">Population Projection</a><a id="Population-Projection-1"></a><a class="docs-heading-anchor-permalink" href="#Population-Projection" title="Permalink"></a></h3><pre><code class="language- hljs">n0 = [1000.0, 500.0, 200.0, 100.0, 50.0]  # initial population
+tspan = (0, 30)
+prob = MPMProblem(turtle, n0, tspan)
+sol = solve(prob, DirectIteration())
+
+p = plot(xlabel=&quot;Year&quot;, ylabel=&quot;Abundance&quot;,
+    title=&quot;Loggerhead sea turtle population projection&quot;)
+for (i, name) in enumerate(turtle.stage_names)
+    plot!(p, 0:30, [sol.u[t][i] for t in 1:31], label=String(name), linewidth=2)
+end
+p</code></pre><h2 id="Handling-Edge-Cases"><a class="docs-heading-anchor" href="#Handling-Edge-Cases">Handling Edge Cases</a><a id="Handling-Edge-Cases-1"></a><a class="docs-heading-anchor-permalink" href="#Handling-Edge-Cases" title="Permalink"></a></h2><h3 id="Multiple-Entries-to-the-Same-Cell"><a class="docs-heading-anchor" href="#Multiple-Entries-to-the-Same-Cell">Multiple Entries to the Same Cell</a><a id="Multiple-Entries-to-the-Same-Cell-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Entries-to-the-Same-Cell" title="Permalink"></a></h3><p>If multiple transitions target the same cell, their values are summed. This is useful for combining contributions from different processes:</p><pre><code class="language-julia hljs"># Sexual + clonal reproduction to the same target
+plant = MatrixProjectionModel([:seedling, :adult],
+    (:adult =&gt; :seedling) =&gt; 3.0,   # sexual
+    (:adult =&gt; :seedling) =&gt; 1.5,   # clonal
+    (:seedling =&gt; :adult) =&gt; 0.2,
+    (:adult =&gt; :adult) =&gt; 0.8)
+
+println(&quot;Total recruitment: &quot;, plant.A[1, 2])  # 3.0 + 1.5 = 4.5</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Total recruitment: 4.5</code></pre><h3 id="Empty-Transitions"><a class="docs-heading-anchor" href="#Empty-Transitions">Empty Transitions</a><a id="Empty-Transitions-1"></a><a class="docs-heading-anchor-permalink" href="#Empty-Transitions" title="Permalink"></a></h3><p>A model with no transitions produces a zero matrix (useful as a template):</p><pre><code class="language-julia hljs">empty = MatrixProjectionModel([:a, :b, :c])
+println(&quot;All zeros: &quot;, all(empty.A .== 0))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">All zeros: true</code></pre><h3 id="Unknown-Stage-Names"><a class="docs-heading-anchor" href="#Unknown-Stage-Names">Unknown Stage Names</a><a id="Unknown-Stage-Names-1"></a><a class="docs-heading-anchor-permalink" href="#Unknown-Stage-Names" title="Permalink"></a></h3><p>Referencing a stage name not in the list throws an informative error:</p><pre><code class="language-julia hljs">try
+    MatrixProjectionModel([:a, :b], (:a =&gt; :c) =&gt; 0.5)
+catch e
+    println(&quot;Error: &quot;, e)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Error: ArgumentError(&quot;Unknown stage name :c&quot;)</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>The sparse transition constructors provide a concise, readable way to build MPMs:</p><ol><li><strong>A-only</strong>: <code>MatrixProjectionModel(stage_names, transitions...)</code> — sets <span>$\mathbf{U} = \mathbf{A}$</span>, <span>$\mathbf{F} = \mathbf{0}$</span></li><li><strong>U/F/C decomposed</strong>: <code>MatrixProjectionModel(stage_names; U=..., F=..., C=...)</code> — computes <span>$\mathbf{A} = \mathbf{U} + \mathbf{F} + \mathbf{C}$</span></li><li><strong>Convention</strong>: <code>(from =&gt; to) =&gt; value</code> reads like a life cycle graph arc</li><li><strong>Compatible</strong>: produces standard <code>MatrixProjectionModel</code> objects — all analysis functions work as-is</li><li><strong>Robust</strong>: validates stage names, sums duplicate entries, promotes numeric types</li></ol><p>The next vignette in the CategoricalPopulationDynamics.jl package extends this idea to <strong>valued projection nets</strong>, which combine categorical structure with sparse numeric data.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../10_comparative/">« Comparative Demography with COMPADRE and COMADRE</a><a class="docs-footer-nextpage" href="../12_time_lag/">Time-Lagged Matrix Projection Models »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

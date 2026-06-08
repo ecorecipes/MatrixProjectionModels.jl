@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Perturbation Analysis · MatrixProjectionModels.jl</title><meta name="title" content="Perturbation Analysis · MatrixProjectionModels.jl"/><meta property="og:title" content="Perturbation Analysis · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Perturbation Analysis · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/07_perturbation/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/07_perturbation/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/07_perturbation/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li class="is-active"><a class="tocitem" href>Perturbation Analysis</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#The-Loggerhead-Sea-Turtle"><span>The Loggerhead Sea Turtle</span></a></li><li><a class="tocitem" href="#Level-1:-Analytical-Sensitivity-and-Elasticity"><span>Level 1: Analytical Sensitivity and Elasticity</span></a></li><li><a class="tocitem" href="#Level-2:-Numerical-Matrix-Perturbation"><span>Level 2: Numerical Matrix Perturbation</span></a></li><li><a class="tocitem" href="#Level-3:-Vital-Rate-Perturbation"><span>Level 3: Vital Rate Perturbation</span></a></li><li><a class="tocitem" href="#Level-4:-Transition-Level-Perturbation"><span>Level 4: Transition-Level Perturbation</span></a></li><li><a class="tocitem" href="#Comparative:-Conservation-Priorities"><span>Comparative: Conservation Priorities</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Perturbation Analysis</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Perturbation Analysis</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/07_perturbation.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Perturbation-Analysis"><a class="docs-heading-anchor" href="#Perturbation-Analysis">Perturbation Analysis</a><a id="Perturbation-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Perturbation-Analysis" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p><strong>Perturbation analysis</strong> asks: how much does <span>$\lambda$</span> change when we perturb a matrix element, a vital rate, or a transition? This is central to conservation biology — it identifies which demographic processes most influence population growth, guiding management interventions. This vignette demonstrates four levels of perturbation analysis, using the loggerhead sea turtle as a case study for the famous &quot;TED&quot; (turtle excluder device) argument.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using Plots
+using LinearAlgebra</code></pre><h2 id="The-Loggerhead-Sea-Turtle"><a class="docs-heading-anchor" href="#The-Loggerhead-Sea-Turtle">The Loggerhead Sea Turtle</a><a id="The-Loggerhead-Sea-Turtle-1"></a><a class="docs-heading-anchor-permalink" href="#The-Loggerhead-Sea-Turtle" title="Permalink"></a></h2><p>The Crouse et al. (1987) sea turtle model became one of the most impactful applications of perturbation analysis. It showed that protecting large juveniles and subadults (via turtle excluder devices on shrimp trawls) would do far more for population recovery than protecting eggs — overturning decades of conservation strategy focused on egg protection.</p><pre><code class="language-julia hljs">U = [0.0     0.0     0.0     0.0     0.0
+     0.6747  0.7370  0.0     0.0     0.0
+     0.0     0.0486  0.6610  0.0     0.0
+     0.0     0.0     0.0147  0.6907  0.0
+     0.0     0.0     0.0     0.0518  0.8091]
+
+F = [0.0  0.0  0.0  0.0  127.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0
+     0.0  0.0  0.0  0.0  0.0]
+
+A = U + F
+stage_names = [&quot;Egg/hatch&quot;, &quot;Sm juv&quot;, &quot;Lg juv&quot;, &quot;Subadult&quot;, &quot;Adult&quot;]
+
+mpm = MatrixProjectionModel(U, F;
+    stage_names=Symbol.(stage_names))
+println(&quot;λ = &quot;, round(lambda(mpm), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">λ = 0.9706</code></pre><h2 id="Level-1:-Analytical-Sensitivity-and-Elasticity"><a class="docs-heading-anchor" href="#Level-1:-Analytical-Sensitivity-and-Elasticity">Level 1: Analytical Sensitivity and Elasticity</a><a id="Level-1:-Analytical-Sensitivity-and-Elasticity-1"></a><a class="docs-heading-anchor-permalink" href="#Level-1:-Analytical-Sensitivity-and-Elasticity" title="Permalink"></a></h2><h3 id="Sensitivity"><a class="docs-heading-anchor" href="#Sensitivity">Sensitivity</a><a id="Sensitivity-1"></a><a class="docs-heading-anchor-permalink" href="#Sensitivity" title="Permalink"></a></h3><p>Sensitivity <span>$s_{ij} = \partial\lambda / \partial a_{ij}$</span> measures the absolute change in <span>$\lambda$</span> per unit change in matrix element <span>$a_{ij}$</span>:</p><pre><code class="language- hljs">S = sensitivity(mpm)
+
+heatmap(stage_names, stage_names, S,
+    title=&quot;Sensitivity ∂λ/∂aᵢⱼ&quot;,
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;,
+    color=:YlOrRd)</code></pre><h3 id="Elasticity"><a class="docs-heading-anchor" href="#Elasticity">Elasticity</a><a id="Elasticity-1"></a><a class="docs-heading-anchor-permalink" href="#Elasticity" title="Permalink"></a></h3><p>Elasticity <span>$e_{ij} = (a_{ij}/\lambda) \cdot (\partial\lambda/\partial a_{ij})$</span> measures the <em>proportional</em> change in <span>$\lambda$</span> per proportional change in <span>$a_{ij}$</span>. Elasticities sum to 1.</p><pre><code class="language- hljs">E = elasticity(mpm)
+
+heatmap(stage_names, stage_names, E,
+    title=&quot;Elasticity of λ&quot;,
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;,
+    color=:YlOrRd)</code></pre><pre><code class="language-julia hljs"># Elasticities sum to 1
+println(&quot;Sum of elasticities: &quot;, round(sum(E), digits=6))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Sum of elasticities: 1.0</code></pre><h3 id="The-TED-Argument"><a class="docs-heading-anchor" href="#The-TED-Argument">The TED Argument</a><a id="The-TED-Argument-1"></a><a class="docs-heading-anchor-permalink" href="#The-TED-Argument" title="Permalink"></a></h3><p>The key insight: elasticity of adult survival far exceeds elasticity of egg production.</p><pre><code class="language- hljs"># Elasticity of fecundity (F) vs survival (U) components
+E_survival = sum(E .* (U .&gt; 0))
+E_fecundity = sum(E .* (F .&gt; 0))
+
+bar([&quot;Survival (U)&quot;, &quot;Fecundity (F)&quot;],
+    [E_survival, E_fecundity],
+    ylabel=&quot;Total elasticity&quot;,
+    title=&quot;Survival vs fecundity elasticity — Sea turtle&quot;,
+    legend=false, color=[:teal, :orange], alpha=0.7)</code></pre><pre><code class="language- hljs"># Stage-specific elasticity summed across transitions
+E_by_stage = vec(sum(E, dims=1))
+
+bar(stage_names, E_by_stage,
+    ylabel=&quot;Total elasticity&quot;,
+    title=&quot;Elasticity by source stage&quot;,
+    legend=false, color=:teal, alpha=0.7)</code></pre><p>Large juveniles and adults contribute the most to <span>$\lambda$</span> — protecting them (via TEDs) is the most effective conservation strategy.</p><h2 id="Level-2:-Numerical-Matrix-Perturbation"><a class="docs-heading-anchor" href="#Level-2:-Numerical-Matrix-Perturbation">Level 2: Numerical Matrix Perturbation</a><a id="Level-2:-Numerical-Matrix-Perturbation-1"></a><a class="docs-heading-anchor-permalink" href="#Level-2:-Numerical-Matrix-Perturbation" title="Permalink"></a></h2><p>For any demographic statistic (not just <span>$\lambda$</span>), <code>perturb_matrix</code> computes numerical perturbation of each matrix element:</p><pre><code class="language-julia hljs">S_num = perturb_matrix(A; type=:sensitivity)
+E_num = perturb_matrix(A; type=:elasticity)
+
+println(&quot;Analytical vs numerical sensitivity max error: &quot;,
+    round(maximum(abs.(S - S_num)), digits=8))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Analytical vs numerical sensitivity max error: 0.00811482</code></pre><h3 id="Perturbation-of-Other-Statistics"><a class="docs-heading-anchor" href="#Perturbation-of-Other-Statistics">Perturbation of Other Statistics</a><a id="Perturbation-of-Other-Statistics-1"></a><a class="docs-heading-anchor-permalink" href="#Perturbation-of-Other-Statistics" title="Permalink"></a></h3><p>We can compute sensitivities for any scalar function of the matrix, such as the damping ratio <span>$\rho$</span> (rate of convergence to stable stage distribution):</p><pre><code class="language- hljs"># Sensitivity of damping ratio to matrix elements
+S_rho = perturb_matrix(A; type=:sensitivity,
+    demog_stat=a -&gt; damping_ratio(MatrixProjectionModel(a)))
+
+heatmap(stage_names, stage_names, S_rho,
+    title=&quot;Sensitivity of damping ratio&quot;,
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;,
+    color=:RdBu, clims=(-maximum(abs.(S_rho)), maximum(abs.(S_rho))))</code></pre><h2 id="Level-3:-Vital-Rate-Perturbation"><a class="docs-heading-anchor" href="#Level-3:-Vital-Rate-Perturbation">Level 3: Vital Rate Perturbation</a><a id="Level-3:-Vital-Rate-Perturbation-1"></a><a class="docs-heading-anchor-permalink" href="#Level-3:-Vital-Rate-Perturbation" title="Permalink"></a></h2><p>Rather than perturbing individual matrix elements, <code>perturb_vr</code> perturbs vital rate <em>components</em>: survival, growth (progression), shrinkage (retrogression), stasis, and fecundity.</p><pre><code class="language- hljs">vr_sens = perturb_vr(U, F; type=:sensitivity)
+
+categories = [&quot;Survival&quot;, &quot;Growth&quot;, &quot;Shrinkage&quot;, &quot;Stasis&quot;, &quot;Fecundity&quot;]
+values = [vr_sens.survival, vr_sens.growth, vr_sens.shrinkage,
+          vr_sens.stasis, vr_sens.fecundity]
+
+bar(categories, values,
+    ylabel=&quot;Mean sensitivity&quot;,
+    title=&quot;Vital rate sensitivity of λ&quot;,
+    legend=false, color=[:teal, :forestgreen, :indianred, :goldenrod, :orchid],
+    alpha=0.7)</code></pre><pre><code class="language- hljs">vr_elas = perturb_vr(U, F; type=:elasticity)
+
+values_e = [vr_elas.survival, vr_elas.growth, vr_elas.shrinkage,
+            vr_elas.stasis, vr_elas.fecundity]
+
+bar(categories, values_e,
+    ylabel=&quot;Mean elasticity&quot;,
+    title=&quot;Vital rate elasticity of λ&quot;,
+    legend=false, color=[:teal, :forestgreen, :indianred, :goldenrod, :orchid],
+    alpha=0.7)</code></pre><p>Stasis (remaining in the same stage) dominates — consistent with a long-lived species where individuals spend many years in each stage.</p><h2 id="Level-4:-Transition-Level-Perturbation"><a class="docs-heading-anchor" href="#Level-4:-Transition-Level-Perturbation">Level 4: Transition-Level Perturbation</a><a id="Level-4:-Transition-Level-Perturbation-1"></a><a class="docs-heading-anchor-permalink" href="#Level-4:-Transition-Level-Perturbation" title="Permalink"></a></h2><p><code>perturb_trans</code> returns sensitivity and elasticity matrices separately for the <span>$\mathbf{U}$</span> and <span>$\mathbf{F}$</span> components:</p><pre><code class="language- hljs">trans = perturb_trans(U, F; type=:elasticity)
+
+p1 = heatmap(stage_names, stage_names, trans.U,
+    title=&quot;Elasticity of U transitions&quot;,
+    xlabel=&quot;From&quot;, ylabel=&quot;To&quot;, color=:YlOrRd)
+p2 = heatmap(stage_names, stage_names, trans.F,
+    title=&quot;Elasticity of F transitions&quot;,
+    xlabel=&quot;From&quot;, ylabel=&quot;To&quot;, color=:YlOrRd)
+plot(p1, p2, layout=(1,2), size=(800, 350))</code></pre><h2 id="Comparative:-Conservation-Priorities"><a class="docs-heading-anchor" href="#Comparative:-Conservation-Priorities">Comparative: Conservation Priorities</a><a id="Comparative:-Conservation-Priorities-1"></a><a class="docs-heading-anchor-permalink" href="#Comparative:-Conservation-Priorities" title="Permalink"></a></h2><p>Let us compare perturbation results across species to demonstrate how life history strategy determines which demographic processes matter most.</p><pre><code class="language-julia hljs"># Short-lived: Pitcher&#39;s thistle (monocarpic perennial)
+U_thistle = [0.00  0.00  0.00  0.00  0.00  0.00
+             0.05  0.00  0.00  0.00  0.00  0.00
+             0.00  0.30  0.45  0.08  0.00  0.00
+             0.00  0.00  0.25  0.52  0.15  0.00
+             0.00  0.00  0.00  0.20  0.55  0.00
+             0.00  0.00  0.00  0.00  0.20  0.00]
+F_thistle = [0.0  0.0  0.0  0.0  0.0  350.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0
+             0.0  0.0  0.0  0.0  0.0  0.0]
+
+# Long-lived: Tree (like Tsuga)
+U_tree = [0.40  0.00  0.00  0.00
+          0.10  0.75  0.00  0.00
+          0.00  0.05  0.92  0.00
+          0.00  0.00  0.03  0.98]
+F_tree = [0.0  0.0  2.0  40.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4×4 Matrix{Float64}:
+ 0.0  0.0  2.0  40.0
+ 0.0  0.0  0.0   0.0
+ 0.0  0.0  0.0   0.0
+ 0.0  0.0  0.0   0.0</code></pre><pre><code class="language- hljs">results = Dict{String, NamedTuple}()
+for (name, Ui, Fi) in [(&quot;Sea turtle&quot;, U, F),
+                        (&quot;Thistle&quot;, U_thistle, F_thistle),
+                        (&quot;Tree&quot;, U_tree, F_tree)]
+    vr = perturb_vr(Ui, Fi; type=:elasticity)
+    results[name] = vr
+end
+
+species_order = [&quot;Thistle&quot;, &quot;Sea turtle&quot;, &quot;Tree&quot;]
+survival_e = [results[s].survival for s in species_order]
+growth_e = [results[s].growth for s in species_order]
+stasis_e = [results[s].stasis for s in species_order]
+fecundity_e = [results[s].fecundity for s in species_order]
+
+data = hcat(survival_e, growth_e, stasis_e, fecundity_e)
+cat_labels = [&quot;Survival&quot;, &quot;Growth&quot;, &quot;Stasis&quot;, &quot;Fecundity&quot;]
+cat_colors = [:teal :forestgreen :goldenrod :orchid]
+n_sp = length(species_order)
+n_cat = 4
+bw = 0.2
+boff = (-(n_cat-1)/2:(n_cat-1)/2) .* bw
+p_comp = plot(xlabel=&quot;Species&quot;, ylabel=&quot;Mean elasticity&quot;,
+    title=&quot;Conservation priorities across life histories&quot;,
+    legend=:topright)
+for j in 1:n_cat
+    bar!(p_comp, (1:n_sp) .+ boff[j], data[:, j],
+        bar_width=bw, label=cat_labels[j],
+        color=cat_colors[j], alpha=0.7)
+end
+plot!(p_comp, xticks=(1:n_sp, species_order))
+p_comp</code></pre><p>Short-lived species like the monocarpic thistle are more sensitive to fecundity changes, while long-lived species (turtle, tree) are most sensitive to survival changes — a fundamental pattern in life history theory.</p><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this vignette we:</p><ol><li>Computed analytical sensitivity and elasticity matrices</li><li>Demonstrated the sea turtle TED argument — protecting juveniles is more effective than protecting eggs</li><li>Used numerical perturbation for non-standard demographic statistics</li><li>Decomposed perturbation by vital rate category (survival, growth, stasis, fecundity)</li><li>Analyzed perturbation at the transition level (<span>$\mathbf{U}$</span> vs <span>$\mathbf{F}$</span>)</li><li>Compared conservation priorities across contrasting life histories</li></ol><p>The next vignette covers stochastic MPMs and environmental variation.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../06_life_history/">« Life History Traits</a><a class="docs-footer-nextpage" href="../08_stochastic/">Stochastic Matrix Projection Models »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

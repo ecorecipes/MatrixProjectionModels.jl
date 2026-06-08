@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Stochastic Matrix Projection Models · MatrixProjectionModels.jl</title><meta name="title" content="Stochastic Matrix Projection Models · MatrixProjectionModels.jl"/><meta property="og:title" content="Stochastic Matrix Projection Models · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Stochastic Matrix Projection Models · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/08_stochastic/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/08_stochastic/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/08_stochastic/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li class="is-active"><a class="tocitem" href>Stochastic Matrix Projection Models</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#The-Model-Species"><span>The Model Species</span></a></li><li><a class="tocitem" href="#Kernel-Resampled-Stochastic-MPMs"><span>Kernel-Resampled Stochastic MPMs</span></a></li><li><a class="tocitem" href="#Parameter-Resampled-Stochastic-MPMs"><span>Parameter-Resampled Stochastic MPMs</span></a></li><li><a class="tocitem" href="#Stochastic-Perturbation-Analysis"><span>Stochastic Perturbation Analysis</span></a></li><li><a class="tocitem" href="#Effect-of-Variance-on-Growth"><span>Effect of Variance on Growth</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li></ul></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li><a class="tocitem" href="../20_ltre/">Life Table Response Experiments (LTRE)</a></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Stochastic Matrix Projection Models</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Stochastic Matrix Projection Models</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/08_stochastic.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Stochastic-Matrix-Projection-Models"><a class="docs-heading-anchor" href="#Stochastic-Matrix-Projection-Models">Stochastic Matrix Projection Models</a><a id="Stochastic-Matrix-Projection-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Stochastic-Matrix-Projection-Models" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>Real populations experience <strong>environmental stochasticity</strong> — year-to-year variation in vital rates due to weather, resource availability, or disturbance. Stochastic MPMs model this by drawing from a set of environment-specific matrices at each time step. The stochastic growth rate <span>$\lambda_s \leq \lambda_{\text{det}}$</span> (Tuljapurkar&#39;s inequality), meaning environmental variation generally reduces long-term population growth. This vignette demonstrates both kernel-resampled and parameter-resampled stochastic MPMs.</p><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using Plots
+using LinearAlgebra
+using Statistics
+using Random
+Random.seed!(42)</code></pre><h2 id="The-Model-Species"><a class="docs-heading-anchor" href="#The-Model-Species">The Model Species</a><a id="The-Model-Species-1"></a><a class="docs-heading-anchor-permalink" href="#The-Model-Species" title="Permalink"></a></h2><p>We model a perennial plant (inspired by <em>Silene spaldingii</em>, Spalding&#39;s catchfly, from COMPADRE) with 4 stages: seedling, small, large, flowering. The species experiences alternating good and bad years driven by rainfall.</p><h3 id="Environment-Specific-Matrices"><a class="docs-heading-anchor" href="#Environment-Specific-Matrices">Environment-Specific Matrices</a><a id="Environment-Specific-Matrices-1"></a><a class="docs-heading-anchor-permalink" href="#Environment-Specific-Matrices" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Good year: high survival, high growth, high fecundity
+U_good = [0.10  0.00  0.00  0.00
+          0.25  0.50  0.00  0.00
+          0.00  0.25  0.65  0.10
+          0.00  0.00  0.20  0.80]
+F_good = [0.0  0.0  0.0  60.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0
+          0.0  0.0  0.0  0.0]
+
+# Bad year: low survival, reduced growth, low fecundity
+U_bad = [0.05  0.00  0.00  0.00
+         0.15  0.35  0.00  0.00
+         0.00  0.10  0.45  0.15
+         0.00  0.00  0.10  0.55]
+F_bad = [0.0  0.0  0.0  15.0
+         0.0  0.0  0.0  0.0
+         0.0  0.0  0.0  0.0
+         0.0  0.0  0.0  0.0]
+
+A_good = U_good + F_good
+A_bad = U_bad + F_bad
+
+mpm_good = MatrixProjectionModel(U_good, F_good)
+mpm_bad = MatrixProjectionModel(U_bad, F_bad)
+
+println(&quot;Good year λ = &quot;, round(lambda(mpm_good), digits=4))
+println(&quot;Bad year λ  = &quot;, round(lambda(mpm_bad), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Good year λ = 1.4841
+Bad year λ  = 0.793</code></pre><h3 id="Mean-Matrix"><a class="docs-heading-anchor" href="#Mean-Matrix">Mean Matrix</a><a id="Mean-Matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Mean-Matrix" title="Permalink"></a></h3><p>The mean matrix <span>$\bar{\mathbf{A}} = \frac{1}{2}(\mathbf{A}_{\text{good}} + \mathbf{A}_{\text{bad}})$</span> gives the deterministic growth rate if we ignored environmental variation:</p><pre><code class="language-julia hljs">A_mean = 0.5 * A_good + 0.5 * A_bad
+lambda_det = lambda(A_mean)
+println(&quot;Deterministic λ (mean matrix) = &quot;, round(lambda_det, digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Deterministic λ (mean matrix) = 1.1418</code></pre><h2 id="Kernel-Resampled-Stochastic-MPMs"><a class="docs-heading-anchor" href="#Kernel-Resampled-Stochastic-MPMs">Kernel-Resampled Stochastic MPMs</a><a id="Kernel-Resampled-Stochastic-MPMs-1"></a><a class="docs-heading-anchor-permalink" href="#Kernel-Resampled-Stochastic-MPMs" title="Permalink"></a></h2><p>In the <strong>kernel-resampled</strong> approach, we pre-compute matrices for each environment and randomly draw one at each time step.</p><pre><code class="language-julia hljs">n0 = [100.0, 50.0, 25.0, 10.0]
+
+prob_stoch = MPMProblem(
+    StochasticKernelResampled(),
+    [mpm_good, mpm_bad],
+    n0, (0, 200))
+
+sol_stoch = solve(prob_stoch, DirectIteration())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MPMSolution(201 timesteps, retcode=Success)</code></pre><pre><code class="language- hljs">total_pop = [sum(u) for u in sol_stoch.u]
+
+plot(0:200, log10.(total_pop),
+    xlabel=&quot;Time step (years)&quot;, ylabel=&quot;log₁₀ N(t)&quot;,
+    title=&quot;Stochastic population trajectory&quot;,
+    label=&quot;Stochastic&quot;, linewidth=1, alpha=0.7, color=:blue)
+
+# Compare with deterministic trajectory
+prob_det = MPMProblem(MatrixProjectionModel(A_mean), n0, (0, 200))
+sol_det = solve(prob_det, DirectIteration())
+total_det = [sum(u) for u in sol_det.u]
+plot!(0:200, log10.(total_det),
+    label=&quot;Deterministic (mean)&quot;, linewidth=2, color=:red, linestyle=:dash)</code></pre><h3 id="Stochastic-Growth-Rate"><a class="docs-heading-anchor" href="#Stochastic-Growth-Rate">Stochastic Growth Rate</a><a id="Stochastic-Growth-Rate-1"></a><a class="docs-heading-anchor-permalink" href="#Stochastic-Growth-Rate" title="Permalink"></a></h3><p>The stochastic growth rate <span>$\lambda_s$</span> is the geometric mean of per-step growth rates:</p><p class="math-container">\[\log \lambda_s = \lim_{T \to \infty} \frac{1}{T} \sum_{t=1}^{T} \log \lambda(t)\]</p><p>We compute it from the simulation solution:</p><pre><code class="language-julia hljs">lambda_s = stochastic_growth_rate(sol_stoch)
+println(&quot;Stochastic growth rate (λₛ) = &quot;, round(lambda_s, digits=4))
+println(&quot;Deterministic growth rate (λ̄) = &quot;, round(lambda_det, digits=4))
+println(&quot;Tuljapurkar&#39;s inequality: λₛ ≤ λ̄ → &quot;, lambda_s &lt;= lambda_det + 1e-10)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Stochastic growth rate (λₛ) = 1.0968
+Deterministic growth rate (λ̄) = 1.1418
+Tuljapurkar&#39;s inequality: λₛ ≤ λ̄ → true</code></pre><h3 id="Multiple-Realizations"><a class="docs-heading-anchor" href="#Multiple-Realizations">Multiple Realizations</a><a id="Multiple-Realizations-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Realizations" title="Permalink"></a></h3><pre><code class="language- hljs">p = plot(xlabel=&quot;Time step&quot;, ylabel=&quot;log₁₀ N(t)&quot;,
+    title=&quot;20 stochastic realizations&quot;, alpha=0.3)
+
+for _ in 1:20
+    sol_i = solve(prob_stoch, DirectIteration())
+    pop_i = [sum(u) for u in sol_i.u]
+    plot!(p, 0:200, log10.(pop_i), label=false, color=:blue, alpha=0.2)
+end
+
+# Overlay deterministic
+plot!(p, 0:200, log10.(total_det),
+    label=&quot;Deterministic&quot;, linewidth=2, color=:red, linestyle=:dash)
+p</code></pre><h2 id="Parameter-Resampled-Stochastic-MPMs"><a class="docs-heading-anchor" href="#Parameter-Resampled-Stochastic-MPMs">Parameter-Resampled Stochastic MPMs</a><a id="Parameter-Resampled-Stochastic-MPMs-1"></a><a class="docs-heading-anchor-permalink" href="#Parameter-Resampled-Stochastic-MPMs" title="Permalink"></a></h2><p>In the <strong>parameter-resampled</strong> approach, vital rate parameters are drawn from distributions at each time step. This allows continuous environmental variation rather than discrete states.</p><pre><code class="language-julia hljs"># Environmental state function: env_state(rng, t) → parameter tuple
+function env_resample(rng, t)
+    # Rainfall modifier (log-normal: mean 1, CV 0.3)
+    rain = exp(randn(rng) * 0.3 - 0.045)  # mean-corrected
+    return (rain=rain,)
+end
+
+# Matrix function: matrix(params) → projection matrix
+function matrix_fn(params)
+    r = params.rain
+    # Scale survival and fecundity by rainfall
+    U_t = clamp.(U_good .* (0.5 + 0.5 * r), 0, 1)
+    F_t = F_good .* r
+    return U_t + F_t
+end
+
+prob_param = MPMProblem(
+    StochasticParameterResampled(),
+    matrix_fn,
+    n0, (0, 200);
+    env_state=env_resample)
+
+sol_param = solve(prob_param, DirectIteration())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">MPMSolution(201 timesteps, retcode=Success)</code></pre><pre><code class="language- hljs">total_param = [sum(u) for u in sol_param.u]
+
+plot(0:200, log10.(total_param),
+    xlabel=&quot;Time step&quot;, ylabel=&quot;log₁₀ N(t)&quot;,
+    title=&quot;Parameter-resampled stochastic dynamics&quot;,
+    label=&quot;Parameter resampled&quot;, linewidth=1, color=:purple)
+plot!(0:200, log10.(total_det),
+    label=&quot;Deterministic&quot;, linewidth=2, color=:red, linestyle=:dash)</code></pre><h2 id="Stochastic-Perturbation-Analysis"><a class="docs-heading-anchor" href="#Stochastic-Perturbation-Analysis">Stochastic Perturbation Analysis</a><a id="Stochastic-Perturbation-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Stochastic-Perturbation-Analysis" title="Permalink"></a></h2><p>We can compute the sensitivity and elasticity of the <em>stochastic</em> growth rate <span>$\log \lambda_s$</span> to changes in mean matrix elements:</p><pre><code class="language- hljs">stoch_sens = perturb_stochastic([A_good, A_bad]; type=:sensitivity, n_sim=50000)
+
+stage_labels = [&quot;Seedling&quot;, &quot;Small&quot;, &quot;Large&quot;, &quot;Flowering&quot;]
+heatmap(stage_labels, stage_labels, stoch_sens,
+    title=&quot;Stochastic sensitivity of log λₛ&quot;,
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;,
+    color=:YlOrRd)</code></pre><h3 id="Comparing-Deterministic-vs-Stochastic-Sensitivity"><a class="docs-heading-anchor" href="#Comparing-Deterministic-vs-Stochastic-Sensitivity">Comparing Deterministic vs Stochastic Sensitivity</a><a id="Comparing-Deterministic-vs-Stochastic-Sensitivity-1"></a><a class="docs-heading-anchor-permalink" href="#Comparing-Deterministic-vs-Stochastic-Sensitivity" title="Permalink"></a></h3><pre><code class="language- hljs">S_det = sensitivity(MatrixProjectionModel(A_mean))
+
+p1 = heatmap(stage_labels, stage_labels, S_det,
+    title=&quot;Deterministic sensitivity&quot;, color=:YlOrRd)
+p2 = heatmap(stage_labels, stage_labels, stoch_sens,
+    title=&quot;Stochastic sensitivity&quot;, color=:YlOrRd)
+plot(p1, p2, layout=(1,2), size=(800, 350))</code></pre><p>Environmental stochasticity can shift sensitivity patterns — conservation priorities derived from deterministic models may not hold in variable environments.</p><h2 id="Effect-of-Variance-on-Growth"><a class="docs-heading-anchor" href="#Effect-of-Variance-on-Growth">Effect of Variance on Growth</a><a id="Effect-of-Variance-on-Growth-1"></a><a class="docs-heading-anchor-permalink" href="#Effect-of-Variance-on-Growth" title="Permalink"></a></h2><p>Tuljapurkar&#39;s approximation shows that <span>$\log \lambda_s \approx \log \bar{\lambda} - \tau^2/(2\bar{\lambda}^2)$</span>, where <span>$\tau^2$</span> is the variance in <span>$\lambda$</span> across environments. More variable environments reduce population growth more:</p><pre><code class="language- hljs"># Vary the severity of bad years
+bad_scalers = 0.5:0.1:1.0  # 1.0 = same as good year (no variation)
+lambda_s_values = Float64[]
+
+for scale in bad_scalers
+    A_bad_scaled = (1 - scale) * A_bad + scale * A_good
+    mpm_bad_s = MatrixProjectionModel(A_bad_scaled)
+    prob_s = MPMProblem(
+        StochasticKernelResampled(),
+        [mpm_good, mpm_bad_s],
+        n0, (0, 500))
+    sol_s = solve(prob_s, DirectIteration())
+    ls = stochastic_growth_rate(sol_s)
+    push!(lambda_s_values, ls)
+end
+
+plot(1.0 .- bad_scalers, lambda_s_values,
+    xlabel=&quot;Environmental variation (1 - scale)&quot;,
+    ylabel=&quot;λₛ&quot;,
+    title=&quot;Stochastic growth rate vs environmental variation&quot;,
+    label=false, linewidth=2, color=:blue)
+hline!([lambda(mpm_good)], label=&quot;λ (good year)&quot;, linestyle=:dash, color=:green)</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><p>In this vignette we:</p><ol><li>Modeled environmental stochasticity using good-year/bad-year matrices</li><li>Demonstrated kernel-resampled stochastic MPMs</li><li>Computed the stochastic growth rate <span>$\lambda_s$</span> and verified Tuljapurkar&#39;s inequality</li><li>Visualized multiple stochastic realizations</li><li>Implemented parameter-resampled stochasticity with continuous environmental variation</li><li>Performed stochastic perturbation analysis</li><li>Showed how environmental variance reduces long-term population growth</li></ol><p>The next vignette covers population simulation and density dependence.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../07_perturbation/">« Perturbation Analysis</a><a class="docs-footer-nextpage" href="../09_simulation/">Population Simulation and Density Dependence »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

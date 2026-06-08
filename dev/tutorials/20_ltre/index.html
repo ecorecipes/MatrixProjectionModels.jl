@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Life Table Response Experiments (LTRE) · MatrixProjectionModels.jl</title><meta name="title" content="Life Table Response Experiments (LTRE) · MatrixProjectionModels.jl"/><meta property="og:title" content="Life Table Response Experiments (LTRE) · MatrixProjectionModels.jl"/><meta property="twitter:title" content="Life Table Response Experiments (LTRE) · MatrixProjectionModels.jl"/><meta name="description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="twitter:description" content="Documentation for MatrixProjectionModels.jl."/><meta property="og:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/20_ltre/"/><meta property="twitter:url" content="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/20_ltre/"/><link rel="canonical" href="https://ecorecipes.github.io/MatrixProjectionModels.jl/tutorials/20_ltre/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">MatrixProjectionModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/types/">Types</a></li><li><a class="tocitem" href="../../api/problems/">Problem &amp; Solution</a></li><li><a class="tocitem" href="../../api/analysis/">Analysis</a></li><li><a class="tocitem" href="../../api/properties/">Matrix Properties</a></li><li><a class="tocitem" href="../../api/construction/">Construction</a></li><li><a class="tocitem" href="../../api/life_tables/">Life Tables</a></li><li><a class="tocitem" href="../../api/vital_rates/">Vital Rates</a></li><li><a class="tocitem" href="../../api/life_history/">Life History Traits</a></li><li><a class="tocitem" href="../../api/perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../../api/transformation/">Transformation</a></li><li><a class="tocitem" href="../../api/time_lag/">Time-Lag Models</a></li><li><a class="tocitem" href="../../api/sciml/">SciML Interface</a></li><li><a class="tocitem" href="../../api/compadre/">COMPADRE Integration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../01_introduction/">Introduction to Matrix Projection Models</a></li><li><a class="tocitem" href="../02_leslie_models/">Age-Structured (Leslie) Models</a></li><li><a class="tocitem" href="../03_construction/">Model Construction and Random Generation</a></li><li><a class="tocitem" href="../04_vital_rates/">Vital Rate Extraction and Decomposition</a></li><li><a class="tocitem" href="../05_life_tables/">Life Tables and Age-from-Stage Analysis</a></li><li><a class="tocitem" href="../06_life_history/">Life History Traits</a></li><li><a class="tocitem" href="../07_perturbation/">Perturbation Analysis</a></li><li><a class="tocitem" href="../08_stochastic/">Stochastic Matrix Projection Models</a></li><li><a class="tocitem" href="../09_simulation/">Population Simulation and Density Dependence</a></li><li><a class="tocitem" href="../10_comparative/">Comparative Demography with COMPADRE and COMADRE</a></li><li><a class="tocitem" href="../11_transitions/">Sparse Transition Constructors</a></li><li><a class="tocitem" href="../12_time_lag/">Time-Lagged Matrix Projection Models</a></li><li><a class="tocitem" href="../13_stage_taxonomy/">Stage Taxonomy and Type Hierarchy</a></li><li><a class="tocitem" href="../14_lag_and_diagnostics/">Time-Lag Models and Spectral Diagnostics</a></li><li><a class="tocitem" href="../15_coupled_systems/">Coupled Population Systems</a></li><li><a class="tocitem" href="../16_substeps_rules_events/">Substeps, Rules, and Scheduled Events</a></li><li><a class="tocitem" href="../17_mortality_fecundity/">Mortality, Fecundity, and Error Estimation</a></li><li><a class="tocitem" href="../18_compadre/">COMPADRE/COMADRE Database Interface</a></li><li><a class="tocitem" href="../19_dcitri_dynamics/">Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a></li><li class="is-active"><a class="tocitem" href>Life Table Response Experiments (LTRE)</a><ul class="internal"><li><a class="tocitem" href="#Overview"><span>Overview</span></a></li><li><a class="tocitem" href="#Setup"><span>Setup</span></a></li><li><a class="tocitem" href="#Example:-Loggerhead-Sea-Turtle"><span>Example: Loggerhead Sea Turtle</span></a></li><li><a class="tocitem" href="#Classical-Fixed-Design-LTRE"><span>Classical Fixed-Design LTRE</span></a></li><li><a class="tocitem" href="#Exact-Fixed-Design-LTRE"><span>Exact Fixed-Design LTRE</span></a></li><li><a class="tocitem" href="#Classical-Random-Design-LTRE"><span>Classical Random-Design LTRE</span></a></li><li><a class="tocitem" href="#Exact-Random-Design-LTRE"><span>Exact Random-Design LTRE</span></a></li><li><a class="tocitem" href="#Small-Noise-Approximation-LTRE-(SNA-LTRE)"><span>Small-Noise Approximation LTRE (SNA-LTRE)</span></a></li><li><a class="tocitem" href="#Comparison:-Classical-vs-Exact"><span>Comparison: Classical vs Exact</span></a></li><li><a class="tocitem" href="#The-G-Matrix"><span>The G-Matrix</span></a></li><li><a class="tocitem" href="#Summary"><span>Summary</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li><li><a class="tocitem" href="../21_quasi_extinction/">Quasi-Extinction Analysis</a></li><li><a class="tocitem" href="../22_markov_environment/">Markov Environment Switching</a></li><li><a class="tocitem" href="../23_density_dependence/">Density-Dependent Projection</a></li><li><a class="tocitem" href="../24_historical_conditional/">Historical Conditional Matrices</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Life Table Response Experiments (LTRE)</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Life Table Response Experiments (LTRE)</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/ecorecipes/MatrixProjectionModels.jl/blob/main/docs/src/tutorials/20_ltre.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Life-Table-Response-Experiments-(LTRE)"><a class="docs-heading-anchor" href="#Life-Table-Response-Experiments-(LTRE)">Life Table Response Experiments (LTRE)</a><a id="Life-Table-Response-Experiments-(LTRE)-1"></a><a class="docs-heading-anchor-permalink" href="#Life-Table-Response-Experiments-(LTRE)" title="Permalink"></a></h1><h2 id="Overview"><a class="docs-heading-anchor" href="#Overview">Overview</a><a id="Overview-1"></a><a class="docs-heading-anchor-permalink" href="#Overview" title="Permalink"></a></h2><p>A <strong>Life Table Response Experiment (LTRE)</strong> decomposes differences or variation in the population growth rate <span>$\lambda$</span> into contributions from individual matrix elements (vital rates). While sensitivity and elasticity analysis asks &quot;what <em>would</em> happen if a vital rate changed?&quot;, LTRE analysis asks &quot;what <em>did</em> contribute to the observed difference?&quot;</p><p>This vignette demonstrates four LTRE approaches available in MatrixProjectionModels.jl:</p><ol><li><strong>Classical fixed-design LTRE</strong> (Caswell 2001) — sensitivity-weighted element differences</li><li><strong>Classical random-design LTRE</strong> — covariance-based decomposition of Var(λ)</li><li><strong>Exact fixed-design LTRE</strong> (Hernandez et al. 2023) — fANOVA decomposition with no linear approximation</li><li><strong>Exact random-design LTRE</strong> — exact decomposition of Var(λ) into main effects + interactions</li><li><strong>Small-noise approximation LTRE</strong> (Davison et al. 2019) — decomposes stochastic growth rate differences</li></ol><h2 id="Setup"><a class="docs-heading-anchor" href="#Setup">Setup</a><a id="Setup-1"></a><a class="docs-heading-anchor-permalink" href="#Setup" title="Permalink"></a></h2><pre><code class="language- hljs">using MatrixProjectionModels
+using LinearAlgebra
+using Plots</code></pre><h2 id="Example:-Loggerhead-Sea-Turtle"><a class="docs-heading-anchor" href="#Example:-Loggerhead-Sea-Turtle">Example: Loggerhead Sea Turtle</a><a id="Example:-Loggerhead-Sea-Turtle-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-Loggerhead-Sea-Turtle" title="Permalink"></a></h2><p>We use a simplified 5-stage life cycle for loggerhead sea turtles (<em>Caretta caretta</em>), comparing a &quot;baseline&quot; population with a population where headstarting increases juvenile survival.</p><pre><code class="language-julia hljs"># Baseline matrix (Crouse et al. 1987, simplified)
+A_baseline = [
+    0.0   0.0   0.0   0.0   61.9
+    0.675 0.703 0.0   0.0   0.0
+    0.0   0.047 0.657 0.0   0.0
+    0.0   0.0   0.019 0.682 0.0
+    0.0   0.0   0.0   0.061 0.809
+]
+
+# Treatment: headstarting increases egg-to-juvenile survival
+A_headstart = [
+    0.0   0.0   0.0   0.0   61.9
+    0.85  0.703 0.0   0.0   0.0   # increased from 0.675 to 0.85
+    0.0   0.047 0.657 0.0   0.0
+    0.0   0.0   0.019 0.750 0.0   # increased from 0.682 to 0.75
+    0.0   0.0   0.0   0.061 0.809
+]
+
+println(&quot;λ baseline   = &quot;, round(lambda(A_baseline), digits=4))
+println(&quot;λ headstart  = &quot;, round(lambda(A_headstart), digits=4))
+println(&quot;Δλ           = &quot;, round(lambda(A_headstart) - lambda(A_baseline), digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">λ baseline   = 0.9433
+λ headstart  = 0.9699
+Δλ           = 0.0266</code></pre><h2 id="Classical-Fixed-Design-LTRE"><a class="docs-heading-anchor" href="#Classical-Fixed-Design-LTRE">Classical Fixed-Design LTRE</a><a id="Classical-Fixed-Design-LTRE-1"></a><a class="docs-heading-anchor-permalink" href="#Classical-Fixed-Design-LTRE" title="Permalink"></a></h2><p>The classical approach approximates: <span>$\lambda_{\text{treat}} - \lambda_{\text{ref}} \approx \sum_{i,j} (a_{ij}^{\text{treat}} - a_{ij}^{\text{ref}}) \times s_{ij}$</span></p><p>where <span>$s_{ij}$</span> is the sensitivity evaluated at the midpoint matrix.</p><pre><code class="language-julia hljs">result = ltre(A_headstart, A_baseline)
+
+println(&quot;Sum of contributions = &quot;, round(sum(result.contributions), digits=5))
+println(&quot;Actual Δλ            = &quot;, round(result.delta_lambda, digits=5))
+println(&quot;Approximation error  = &quot;, round(abs(sum(result.contributions) - result.delta_lambda), digits=6))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Sum of contributions = 0.02658
+Actual Δλ            = 0.02663
+Approximation error  = 5.3e-5</code></pre><p>The sum of contributions closely approximates Δλ. Let&#39;s visualize which transitions drive the difference:</p><pre><code class="language-julia hljs">stages = [&quot;Egg&quot;, &quot;Sm Juv&quot;, &quot;Lg Juv&quot;, &quot;Subadult&quot;, &quot;Adult&quot;]
+C = result.contributions
+
+# Find non-zero contributions
+significant = findall(abs.(C) .&gt; 1e-6)
+for idx in significant
+    i, j = Tuple(idx)
+    println(&quot;  $(stages[j]) → $(stages[i]): contribution = $(round(C[i,j], digits=5))&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  Egg → Sm Juv: contribution = 0.01191
+  Subadult → Subadult: contribution = 0.01467</code></pre><pre><code class="language- hljs">heatmap(C, 
+    xticks=(1:5, stages), yticks=(1:5, stages),
+    xlabel=&quot;From stage&quot;, ylabel=&quot;To stage&quot;,
+    title=&quot;LTRE Contributions to Δλ&quot;,
+    color=:RdBu, clim=(-0.05, 0.05))</code></pre><h2 id="Exact-Fixed-Design-LTRE"><a class="docs-heading-anchor" href="#Exact-Fixed-Design-LTRE">Exact Fixed-Design LTRE</a><a id="Exact-Fixed-Design-LTRE-1"></a><a class="docs-heading-anchor-permalink" href="#Exact-Fixed-Design-LTRE" title="Permalink"></a></h2><p>The exact method (Hernandez et al. 2023) uses functional ANOVA to decompose Δλ <strong>without</strong> the linear (sensitivity) approximation. It captures interaction effects between vital rates.</p><pre><code class="language-julia hljs">exact_result = exact_ltre(A_headstart, A_baseline)
+
+println(&quot;Number of varying elements: &quot;, length(exact_result.indices_varying))
+println(&quot;Number of effects (main + interactions): &quot;, length(exact_result.effects))
+println(&quot;Sum of ALL effects = &quot;, round(sum(exact_result.effects), digits=10))
+println(&quot;Actual Δλ          = &quot;, round(lambda(A_headstart) - lambda(A_baseline), digits=10))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Number of varying elements: 2
+Number of effects (main + interactions): 4
+Sum of ALL effects = 0.0266339893
+Actual Δλ          = 0.0266339893</code></pre><p>The exact method recovers Δλ <em>perfectly</em> — no approximation error. Let&#39;s examine main effects vs interactions:</p><pre><code class="language-julia hljs"># Main effects are those with single indices
+main_effects = [(exact_result.effect_indices[i], exact_result.effects[i])
+                for i in 1:length(exact_result.effects)
+                if length(exact_result.effect_indices[i]) == 1]
+
+interactions = [(exact_result.effect_indices[i], exact_result.effects[i])
+                for i in 1:length(exact_result.effects)
+                if length(exact_result.effect_indices[i]) &gt; 1]
+
+println(&quot;Main effects:&quot;)
+for (idx, eff) in main_effects
+    eff == 0 &amp;&amp; continue
+    println(&quot;  Element $(idx[1]): $(round(eff, digits=6))&quot;)
+end
+
+println(&quot;\nInteraction effects:&quot;)
+for (idx, eff) in interactions
+    abs(eff) &lt; 1e-10 &amp;&amp; continue
+    println(&quot;  Elements $idx: $(round(eff, digits=6))&quot;)
+end
+
+println(&quot;\nSum main effects:  &quot;, round(sum(e for (_, e) in main_effects), digits=6))
+println(&quot;Sum interactions:  &quot;, round(sum(e for (_, e) in interactions), digits=6))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Main effects:
+  Element 1: 0.011941
+  Element 2: 0.014719
+
+Interaction effects:
+  Elements [1, 2]: -2.6e-5
+
+Sum main effects:  0.02666
+Sum interactions:  -2.6e-5</code></pre><h2 id="Classical-Random-Design-LTRE"><a class="docs-heading-anchor" href="#Classical-Random-Design-LTRE">Classical Random-Design LTRE</a><a id="Classical-Random-Design-LTRE-1"></a><a class="docs-heading-anchor-permalink" href="#Classical-Random-Design-LTRE" title="Permalink"></a></h2><p>When we have multiple annual matrices (not a treatment vs. reference), a random-design LTRE decomposes Var(λ) into contributions from variance and covariance in matrix elements.</p><pre><code class="language-julia hljs"># Simulate 5 years of environmental variation
+A_years = [
+    A_baseline .* (1 .+ 0.05 .* randn(5, 5)),
+    A_baseline .* (1 .+ 0.05 .* randn(5, 5)),
+    A_baseline .* (1 .+ 0.05 .* randn(5, 5)),
+    A_baseline .* (1 .+ 0.05 .* randn(5, 5)),
+    A_baseline .* (1 .+ 0.05 .* randn(5, 5)),
+]
+# Ensure non-negative
+A_years = [max.(A, 0) for A in A_years]
+
+rresult = ltre_random(A_years)
+
+println(&quot;Observed Var(λ) = &quot;, round(rresult.var_lambda, digits=6))
+println(&quot;Sum of contributions = &quot;, round(sum(rresult.contributions), digits=6))
+println(&quot;λ of mean matrix = &quot;, round(rresult.lambda_mean, digits=4))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Observed Var(λ) = 0.00022
+Sum of contributions = 0.000248
+λ of mean matrix = 0.937</code></pre><p>The diagonal of the contribution matrix gives variance contributions; off-diagonal gives covariance contributions:</p><pre><code class="language-julia hljs"># Top variance contributors (diagonal)
+diag_contribs = diag(rresult.contributions)
+n2 = length(diag_contribs)
+n = Int(sqrt(n2))
+top_idx = sortperm(abs.(diag_contribs), rev=true)[1:5]
+println(&quot;Top 5 variance contributors:&quot;)
+for idx in top_idx
+    j = div(idx - 1, n) + 1
+    i = mod(idx - 1, n) + 1
+    println(&quot;  a[$i,$j] ($(stages[j])→$(stages[i])): $(round(diag_contribs[idx], digits=8))&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Top 5 variance contributors:
+  a[5,5] (Adult→Adult): 0.00018895
+  a[4,4] (Subadult→Subadult): 0.00011328
+  a[2,2] (Sm Juv→Sm Juv): 5.538e-5
+  a[3,3] (Lg Juv→Lg Juv): 1.447e-5
+  a[4,3] (Lg Juv→Subadult): 6.06e-6</code></pre><h2 id="Exact-Random-Design-LTRE"><a class="docs-heading-anchor" href="#Exact-Random-Design-LTRE">Exact Random-Design LTRE</a><a id="Exact-Random-Design-LTRE-1"></a><a class="docs-heading-anchor-permalink" href="#Exact-Random-Design-LTRE" title="Permalink"></a></h2><p>The exact random-design LTRE provides fANOVA-based decomposition of Var(λ):</p><pre><code class="language-julia hljs">er_random = exact_ltre(A_years)
+
+println(&quot;Number of varying elements: &quot;, length(er_random.indices_varying))
+println(&quot;Number of effects: &quot;, length(er_random.effects))
+println(&quot;Sum of effects = &quot;, round(sum(er_random.effects), digits=8))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Number of varying elements: 9
+Number of effects: 512
+Sum of effects = 0.00017611</code></pre><h2 id="Small-Noise-Approximation-LTRE-(SNA-LTRE)"><a class="docs-heading-anchor" href="#Small-Noise-Approximation-LTRE-(SNA-LTRE)">Small-Noise Approximation LTRE (SNA-LTRE)</a><a id="Small-Noise-Approximation-LTRE-(SNA-LTRE)-1"></a><a class="docs-heading-anchor-permalink" href="#Small-Noise-Approximation-LTRE-(SNA-LTRE)" title="Permalink"></a></h2><p>When comparing two sets of annual matrices, the SNA-LTRE (Davison et al. 2019) decomposes the difference in stochastic growth rate into four components:</p><ol><li><strong>Mean</strong>: shifts in mean vital rates</li><li><strong>Elasticity</strong>: shifts in elasticity structure</li><li><strong>CV</strong>: shifts in temporal variation</li><li><strong>Correlation</strong>: shifts in temporal correlations</li></ol><pre><code class="language-julia hljs"># &quot;Good&quot; environment: lower variation
+A_good = [A_baseline .* (1 .+ 0.02 .* randn(5, 5)) for _ in 1:8]
+A_good = [max.(A, 0) for A in A_good]
+
+# &quot;Bad&quot; environment: higher variation
+A_bad = [A_baseline .* (1 .+ 0.10 .* randn(5, 5)) .* 0.9 for _ in 1:8]
+A_bad = [max.(A, 0) for A in A_bad]
+
+sna = sna_ltre(A_good, A_bad)
+
+println(&quot;SNA-LTRE decomposition:&quot;)
+println(&quot;  r_good (log λ_s) = &quot;, round(sna.r_treatment, digits=4))
+println(&quot;  r_bad  (log λ_s) = &quot;, round(sna.r_reference, digits=4))
+println(&quot;  Δr               = &quot;, round(sna.delta_r, digits=4))
+println()
+println(&quot;  Component contributions:&quot;)
+println(&quot;    Mean:        &quot;, round(sum(sna.cont_mean), digits=5))
+println(&quot;    Elasticity:  &quot;, round(sum(sna.cont_elasticity), digits=5))
+println(&quot;    CV:          &quot;, round(sum(sna.cont_cv), digits=5))
+println(&quot;    Correlation: &quot;, round(sum(sna.cont_correlation), digits=5))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SNA-LTRE decomposition:
+  r_good (log λ_s) = -0.0587
+  r_bad  (log λ_s) = -0.1858
+  Δr               = 0.1271
+
+  Component contributions:
+    Mean:        0.12606
+    Elasticity:  1.0e-5
+    CV:          0.0006
+    Correlation: 0.00035</code></pre><h2 id="Comparison:-Classical-vs-Exact"><a class="docs-heading-anchor" href="#Comparison:-Classical-vs-Exact">Comparison: Classical vs Exact</a><a id="Comparison:-Classical-vs-Exact-1"></a><a class="docs-heading-anchor-permalink" href="#Comparison:-Classical-vs-Exact" title="Permalink"></a></h2><p>A key advantage of the exact LTRE is that it has <strong>zero approximation error</strong> and accounts for interactions:</p><pre><code class="language-julia hljs"># Classical
+classical = ltre(A_headstart, A_baseline)
+classical_error = abs(sum(classical.contributions) - classical.delta_lambda)
+
+# Exact
+exact = exact_ltre(A_headstart, A_baseline)
+exact_error = abs(sum(exact.effects) - (lambda(A_headstart) - lambda(A_baseline)))
+
+println(&quot;Classical LTRE approximation error: &quot;, round(classical_error, digits=10))
+println(&quot;Exact LTRE approximation error:     &quot;, round(exact_error, digits=10))
+println()
+println(&quot;The exact method captures interaction effects that the classical&quot;)
+println(&quot;method misses, which is especially important when multiple vital&quot;)
+println(&quot;rates change simultaneously.&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Classical LTRE approximation error: 5.32991e-5
+Exact LTRE approximation error:     0.0
+
+The exact method captures interaction effects that the classical
+method misses, which is especially important when multiple vital
+rates change simultaneously.</code></pre><h2 id="The-G-Matrix"><a class="docs-heading-anchor" href="#The-G-Matrix">The G-Matrix</a><a id="The-G-Matrix-1"></a><a class="docs-heading-anchor-permalink" href="#The-G-Matrix" title="Permalink"></a></h2><p>The exact LTRE uses the G-matrix (Poelwijk et al. 2016) to convert &quot;responses&quot; into &quot;effects&quot; via Möbius inversion:</p><pre><code class="language-julia hljs">G = gmatrix(3)
+println(&quot;G-matrix for 3 varying parameters (8×8):&quot;)
+display(G)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">G-matrix for 3 varying parameters (8×8):</code></pre><h2 id="Summary"><a class="docs-heading-anchor" href="#Summary">Summary</a><a id="Summary-1"></a><a class="docs-heading-anchor-permalink" href="#Summary" title="Permalink"></a></h2><table><tr><th style="text-align: right">Method</th><th style="text-align: right">Decomposes</th><th style="text-align: right">Approximation</th><th style="text-align: right">Interactions</th></tr><tr><td style="text-align: right">Classical fixed</td><td style="text-align: right">Δλ</td><td style="text-align: right">First-order (sensitivity)</td><td style="text-align: right">No</td></tr><tr><td style="text-align: right">Exact fixed</td><td style="text-align: right">Δλ</td><td style="text-align: right">None (exact)</td><td style="text-align: right">Yes</td></tr><tr><td style="text-align: right">Classical random</td><td style="text-align: right">Var(λ)</td><td style="text-align: right">First-order</td><td style="text-align: right">Pairwise only</td></tr><tr><td style="text-align: right">Exact random</td><td style="text-align: right">Var(λ)</td><td style="text-align: right">None (exact)</td><td style="text-align: right">All orders</td></tr><tr><td style="text-align: right">SNA-LTRE</td><td style="text-align: right">Δlog(λ_s)</td><td style="text-align: right">Second-order</td><td style="text-align: right">Mean/elas/CV/corr</td></tr><tr><td style="text-align: right">Stochastic LTRE</td><td style="text-align: right">Δlog(λ_s)</td><td style="text-align: right">Simulation-based</td><td style="text-align: right">Mean + SD</td></tr></table><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><ul><li>Caswell, H. (2001) <em>Matrix Population Models</em>, Ch. 10. Sinauer.</li><li>Hernandez, C.M. et al. (2023) An exact method for LTRE. <em>Methods Ecol Evol</em> 14:1065–1078.</li><li>Davison, R. et al. (2019) Contributions of covariance. <em>Methods Ecol Evol</em> 10:1656–1672.</li><li>Poelwijk, F.J. et al. (2016) Learning the pattern of epistasis. <em>PLoS Comput Biol</em> 12:e1004771.</li></ul></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../19_dcitri_dynamics/">« Population Dynamics of <em>Diaphorina citri</em> Under Seasonal Forcing</a><a class="docs-footer-nextpage" href="../21_quasi_extinction/">Quasi-Extinction Analysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 8 June 2026 19:54">Monday 8 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
