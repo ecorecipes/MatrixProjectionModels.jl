@@ -59,4 +59,5 @@ makedocs(;
 
 deploydocs(;
     repo = "github.com/ecorecipes/MatrixProjectionModels.jl.git",
+    push_preview = true,
 )
