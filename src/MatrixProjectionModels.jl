@@ -98,6 +98,12 @@ include("construction/transitions.jl")
 include("construction/sampling_error.jl")
 export add_mpm_error
 
+include("density_response.jl")
+export AbstractDensityResponse
+export RickerDensity, BevertonHoltDensity, UsherDensity
+export LogisticDensity, ThetaLogisticDensity, ConstantDensity
+export DensityVitalRateSpec, apply_density
+
 include("construction/error_estimation.jl")
 export calculate_errors, compute_ci
 
@@ -172,14 +178,27 @@ export TimeLagStructure, expand_lag_matrix, extract_lag_components
 export augment_population, extract_population
 export net_repro_rate_lagged, generation_time_lagged
 
-# --- Layer 14: SciML interface ---
+# --- Layer 14: Historical conditional extraction ---
+include("historical_conditional.jl")
+export conditional_ahistorical, conditional_difference, history_dependence
+
+# --- Layer 15: Supplement/overwrite ---
+include("supplement.jl")
+export TransitionSupplement, supplement!, supplement
+
+# --- Layer 16: SciML interface ---
 include("sciml_interface.jl")
 export to_discrete_problem
 
-# --- Layer 15: Plotting ---
+# --- Layer 17: Plotting ---
 include("plotting.jl")
 
-# --- Layer 16: COMPADRE extension stubs ---
+# --- Layer 18: Quasi-extinction & Markov (re-export from Core) ---
+export QuasiExtinctionResult, quasi_extinction
+export MarkovEnvironment, sample_next, sample_initial
+export simulate_environments, project_markov
+
+# --- Layer 19: COMPADRE extension stubs ---
 include("compadre_stubs.jl")
 export AbstractCompadreDB
 export cdb_fetch, cdb_load, cdb_save
