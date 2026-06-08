@@ -1,0 +1,157 @@
+# Density-Dependent Projection
+
+## Overview
+
+Density dependence is fundamental to population regulation. MatrixProjectionModels.jl provides pre-built density response functions that modify vital rates as a function of population size, enabling realistic density-dependent projections.
+
+This vignette covers:
+- The four classical density response functions (Ricker, Beverton-Holt, Usher, Logistic)
+- `DensityVitalRateSpec` for per-vital-rate specification
+- Density-dependent projection using `apply_density()`
+- Theta-logistic for generalized regulation
+
+## Setup
+
+```@example mpm
+using MatrixProjectionModels
+using Plots
+```
+
+## Density Response Functions
+
+Each function takes population density $N$ and returns a multiplicative modifier $f(N) \in [0, \infty)$:
+
+```@example mpm
+N_range = 0:1:500
+
+# Ricker: f(N) = exp(α - β×N)
+r = RickerDensity(α=0.0, β=0.005)
+
+# Beverton-Holt: f(N) = α / (1 + β×N)
+bh = BevertonHoltDensity(α=1.0, β=0.01)
+
+# Usher: f(N) = 1 / (1 + exp(α + β×N))
+u = UsherDensity(α=-2.0, β=0.02)
+
+# Logistic: f(N) = max(0, 1 - N/K)
+lg = LogisticDensity(r=1.0, K=400.0)
+
+plot(N_range, [r.(N_range) bh.(N_range) u.(N_range) lg.(N_range)],
+     label=["Ricker" "Beverton-Holt" "Usher" "Logistic"],
+     xlabel="Population density N", ylabel="Vital rate modifier f(N)",
+     title="Density Response Functions", lw=2,
+     ylim=(0, 1.2))
+```
+
+## Biological Interpretation
+
+| Function | Type | Behavior | Best for |
+|----------|------|----------|----------|
+| Ricker | Overcompensatory | Can overshoot (f < starting) | Fish, insects |
+| Beverton-Holt | Compensatory | Monotone decrease, bounded | Contest competition |
+| Usher | Sigmoidal | Threshold-like transition | Sudden resource limits |
+| Logistic | Linear | Simple linear decrease to K | General regulation |
+
+## Theta-Logistic
+
+The theta-logistic generalizes linear logistic with a shape parameter:
+
+```@example mpm
+thetas = [0.25, 0.5, 1.0, 2.0, 4.0]
+plot(title="Theta-Logistic: f(N) = max(0, 1 - (N/K)^θ)",
+     xlabel="N", ylabel="f(N)", legend=:topright)
+for θ in thetas
+    tl = ThetaLogisticDensity(r=1.0, K=400.0, θ=θ)
+    plot!(N_range, tl.(N_range), label="θ=$θ", lw=2)
+end
+```
+
+- θ < 1: strong regulation at low density (concave)
+- θ = 1: standard linear logistic
+- θ > 1: weak regulation until near K (convex)
+
+## Per-Vital-Rate Density Specification
+
+Different vital rates often respond differently to density. `DensityVitalRateSpec` assigns a response function to each:
+
+```@example mpm
+spec = DensityVitalRateSpec(
+    survival = BevertonHoltDensity(α=1.0, β=0.005),
+    fecundity = RickerDensity(α=0.0, β=0.008),
+    time_delay = 1
+)
+
+# At N=100:
+println("Survival modifier at N=100: ", round(spec.survival(100), digits=3))
+println("Fecundity modifier at N=100: ", round(spec.fecundity(100), digits=3))
+```
+
+## Density-Dependent Projection
+
+```@example mpm
+# 3-stage Leslie matrix (density-independent baseline)
+A = [0.0 2.0 5.0;
+     0.6 0.0 0.0;
+     0.0 0.4 0.3]
+
+spec = DensityVitalRateSpec(
+    survival = BevertonHoltDensity(α=1.0, β=0.003),
+    fecundity = RickerDensity(α=0.0, β=0.005),
+)
+
+# Manual density-dependent projection
+n = [50.0, 30.0, 20.0]
+T_steps = 100
+pop_history = zeros(T_steps + 1)
+pop_history[1] = sum(n)
+
+for t in 1:T_steps
+    N = sum(n)
+    A_dd = apply_density(spec, A, N; fec_rows=[1])
+    n = A_dd * n
+    pop_history[t + 1] = sum(n)
+end
+
+plot(pop_history, xlabel="Time", ylabel="Total population",
+     title="Density-Dependent Projection (Beverton-Holt survival × Ricker fecundity)",
+     legend=false, lw=2)
+```
+
+## Equilibrium Analysis
+
+```@example mpm
+println("Initial population: $(pop_history[1])")
+println("Final population:   $(round(pop_history[end], digits=1))")
+println("Approximate K:      $(round(mean(pop_history[80:end]), digits=1))")
+```
+
+## Comparing Density Response Functions
+
+```@example mpm
+specs = [
+    ("Ricker survival" , DensityVitalRateSpec(survival=RickerDensity(α=0.0, β=0.004), fecundity=ConstantDensity())),
+    ("BH survival",      DensityVitalRateSpec(survival=BevertonHoltDensity(α=1.0, β=0.004), fecundity=ConstantDensity())),
+    ("Ricker fecundity", DensityVitalRateSpec(survival=ConstantDensity(), fecundity=RickerDensity(α=0.0, β=0.005))),
+    ("BH fecundity",     DensityVitalRateSpec(survival=ConstantDensity(), fecundity=BevertonHoltDensity(α=1.0, β=0.005))),
+]
+
+plot(title="Effect of Density Function Choice",
+     xlabel="Time", ylabel="Population size", legend=:right)
+
+for (name, sp) in specs
+    n_sim = [50.0, 30.0, 20.0]
+    hist = zeros(101)
+    hist[1] = sum(n_sim)
+    for t in 1:100
+        A_dd = apply_density(sp, A, sum(n_sim); fec_rows=[1])
+        n_sim = A_dd * n_sim
+        hist[t+1] = sum(n_sim)
+    end
+    plot!(hist, label=name, lw=2)
+end
+```
+
+## References
+
+- Caswell, H. (2001) *Matrix Population Models*, Ch. 16. Sinauer.
+- Shefferson, R.P. & Ehrlen, J. (2023) lefko3: Historical MPMs. R package.

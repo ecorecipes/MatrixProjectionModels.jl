@@ -1,0 +1,212 @@
+# Age-Structured (Leslie) Models
+
+## Overview
+
+**Leslie matrices** are the special case of MPMs where individuals are classified by age. The matrix has fecundity values in the first row, survival probabilities on the sub-diagonal, and zeros elsewhere. This vignette demonstrates how to build Leslie matrices from parametric mortality and fecundity models, following the approach of the `mpmsim` R package.
+
+## Setup
+
+```@example mpm
+using MatrixProjectionModels
+using Plots
+using LinearAlgebra
+```
+
+## Mortality Models
+
+MatrixProjectionModels provides six parametric mortality models. Each defines an age-specific hazard rate $h(x)$, from which survival probability $p(x)$ and survivorship $l(x)$ are derived.
+
+### Gompertz Mortality
+
+The Gompertz model describes exponentially increasing mortality with age — a good model for many mammals and birds:
+
+$$h(x) = b_0 \exp(b_1 x)$$
+
+```@example mpm
+gomp = GompertzMortality(0.01, 0.1)
+surv_gomp = model_survival(gomp; ages=0:50)
+
+p1 = plot(surv_gomp.x, surv_gomp.hx, ylabel="Hazard h(x)",
+    title="Gompertz hazard", label=false, linewidth=2)
+p2 = plot(surv_gomp.x, surv_gomp.lx, ylabel="Survivorship l(x)",
+    title="Gompertz survivorship", label=false, linewidth=2, color=:red)
+plot(p1, p2, layout=(1,2), size=(800, 350), xlabel="Age")
+```
+
+### Siler Mortality
+
+The Siler model adds juvenile mortality decline and a constant background hazard — the "bathtub" curve characteristic of many vertebrates:
+
+$$h(x) = a_0 e^{-a_1 x} + C + b_0 e^{b_1 x}$$
+
+```@example mpm
+siler = SilerMortality(0.1, 0.5, 0.005, 0.001, 0.08)
+surv_siler = model_survival(siler; ages=0:60)
+
+plot(surv_siler.x, surv_siler.hx,
+    xlabel="Age", ylabel="Hazard h(x)",
+    title="Siler mortality — bathtub curve",
+    label=false, linewidth=2, yscale=:log10)
+```
+
+### Comparing All Mortality Models
+
+```@example mpm
+models = [
+    ("Gompertz", GompertzMortality(0.01, 0.1)),
+    ("Gompertz-Makeham", GompertzMakehamMortality(0.01, 0.1, 0.01)),
+    ("Exponential", ExponentialMortality(0.05)),
+    ("Siler", SilerMortality(0.1, 0.5, 0.005, 0.001, 0.08)),
+    ("Weibull", WeibullMortality(2.0, 0.02)),
+    ("Weibull-Makeham", WeibullMakehamMortality(2.0, 0.02, 0.01))
+]
+
+p = plot(xlabel="Age", ylabel="Survivorship l(x)",
+    title="Survivorship under different mortality models", legend=:topright)
+for (name, model) in models
+    s = model_survival(model; ages=0:50)
+    plot!(p, s.x, s.lx, label=name, linewidth=2)
+end
+p
+```
+
+## Fecundity Models
+
+Five parametric fecundity models are available, each describing age-specific reproductive output.
+
+```@example mpm
+fecundity_models = [
+    ("Logistic", LogisticFecundity(5.0, 0.5, 8.0)),
+    ("Step", StepFecundity(5.0, 5.0)),
+    ("Von Bertalanffy", VonBertalanffyFecundity(5.0, 0.2)),
+    ("Normal", NormalFecundity(5.0, 15.0, 5.0)),
+    ("Hadwiger", HadwigerFecundity(3.5, 2.0, 10.0))
+]
+
+p = plot(xlabel="Age", ylabel="Fecundity f(x)",
+    title="Fecundity models", legend=:topright)
+for (name, model) in fecundity_models
+    f = model_fecundity(model; ages=0:40)
+    plot!(p, f.x, f.fx, label=name, linewidth=2)
+end
+p
+```
+
+## Building a Leslie Matrix
+
+### From Survival and Fecundity Vectors
+
+The simplest approach is to provide vectors of age-specific survival probabilities and fecundities directly.
+
+```@example mpm
+# A 10-age-class model (e.g., medium-lived bird)
+survival = [0.30, 0.50, 0.70, 0.80, 0.85, 0.85, 0.80, 0.70, 0.50, 0.20]
+fecundity = [0.0, 0.0, 0.5, 1.5, 2.5, 3.0, 2.5, 1.5, 0.5, 0.0]
+
+mpm = make_leslie_mpm(survival, fecundity)
+```
+
+```@example mpm
+println("λ = ", round(lambda(mpm), digits=4))
+println("Leslie structure: ", is_leslie(Matrix(mpm)))
+```
+
+```@example mpm
+heatmap(Matrix(mpm),
+    title="Leslie matrix — 10-age-class bird",
+    xlabel="Age class (from)", ylabel="Age class (to)",
+    color=:viridis)
+```
+
+### From Mortality and Fecundity Models
+
+We can build Leslie matrices directly from parametric models — useful for generating families of matrices for comparative studies.
+
+```@example mpm
+# Long-lived species (e.g., albatross-like)
+mort_model = GompertzMortality(0.005, 0.08)
+fec_model = LogisticFecundity(0.8, 0.5, 7.0)
+
+mpm_long = make_leslie_mpm(mort_model, fec_model; n_stages=30)
+println("Albatross-like: λ = ", round(lambda(mpm_long), digits=4))
+```
+
+```@example mpm
+# Short-lived species (e.g., songbird-like)
+mort_short = GompertzMortality(0.1, 0.3)
+fec_short = StepFecundity(4.0, 1.0)
+
+mpm_short = make_leslie_mpm(mort_short, fec_short; n_stages=10)
+println("Songbird-like: λ = ", round(lambda(mpm_short), digits=4))
+```
+
+### Visualizing the Life History
+
+```@example mpm
+surv_long = model_survival(mort_model; ages=0:29)
+fec_long = model_fecundity(fec_model; ages=0:29)
+
+p1 = plot(surv_long.x, surv_long.lx,
+    xlabel="Age", ylabel="Survivorship",
+    title="Albatross-like life history",
+    label="l(x)", linewidth=2)
+p2 = plot(fec_long.x, fec_long.fx,
+    xlabel="Age", ylabel="Fecundity",
+    label="f(x)", linewidth=2, color=:orange)
+plot(p1, p2, layout=(1,2), size=(800, 350))
+```
+
+## Generating Sets of Leslie Matrices
+
+For stochastic simulations or comparative analyses, we can generate sets of Leslie MPMs with parameters drawn from distributions.
+
+```@example mpm
+# Generate 5 Leslie MPMs with varying parameters
+mpms = rand_leslie_set(5;
+    mortality_model=GompertzMortality(0.01, 0.1),
+    fecundity_model=LogisticFecundity(3.0, 0.4, 5.0),
+    n_stages=15)
+
+lambdas = [lambda(m) for m in mpms]
+println("λ values: ", round.(lambdas, digits=4))
+```
+
+## A COMADRE Example: Peregrine Falcon
+
+This Leslie matrix is based on peregrine falcon (*Falco peregrinus*) life table data from COMADRE. Peregrines are long-lived raptors with delayed maturity and high adult survival.
+
+```@example mpm
+# Peregrine falcon — 15 age classes
+# Survival based on Ratcliffe (1993): juvenile 0.40, adult ~0.84
+# Fecundity: first breeding at age 2-3, peak at ages 5-8
+peregrine_surv = [0.40, 0.60, 0.84, 0.84, 0.84, 0.84, 0.84,
+                  0.84, 0.84, 0.82, 0.80, 0.75, 0.65, 0.50, 0.30]
+peregrine_fec = [0.0, 0.0, 0.5, 1.0, 1.5, 1.8, 1.8,
+                 1.8, 1.8, 1.5, 1.2, 0.8, 0.5, 0.2, 0.0]
+
+peregrine = make_leslie_mpm(peregrine_surv, peregrine_fec)
+println("Peregrine falcon λ = ", round(lambda(peregrine), digits=4))
+```
+
+```@example mpm
+w_p = stable_distribution(peregrine)
+v_p = reproductive_value(peregrine)
+
+p1 = bar(1:15, w_p, xlabel="Age class", ylabel="Proportion",
+    title="Stable age distribution", label=false, color=:teal, alpha=0.7)
+p2 = bar(1:15, v_p, xlabel="Age class", ylabel="Reproductive value",
+    title="Reproductive value", label=false, color=:indianred, alpha=0.7)
+plot(p1, p2, layout=(1,2), size=(800, 350))
+```
+
+## Summary
+
+In this vignette we:
+
+1. Explored six parametric mortality models (Gompertz, Siler, Weibull, etc.)
+2. Compared five parametric fecundity models
+3. Built Leslie matrices from survival/fecundity vectors and from parametric models
+4. Generated sets of Leslie matrices for comparative analysis
+5. Analyzed a peregrine falcon age-structured model from COMADRE
+
+The next vignette covers stage-structured (Lefkovitch) model construction and random generation.
