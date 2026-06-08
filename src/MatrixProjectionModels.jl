@@ -61,6 +61,11 @@ export lambda, stable_distribution, reproductive_value
 export sensitivity, elasticity, damping_ratio
 export stochastic_growth_rate, mean_kernel, mean_matrix
 export area_under_curve
+# Re-export LTRE analysis
+export LTREResult, StochasticLTREResult, SNALTREResult
+export ExactLTREResult, RandomLTREResult
+export ltre, stochastic_ltre, sna_ltre
+export ltre_random, exact_ltre, gmatrix
 
 # --- Layer 6: Matrix properties ---
 include("properties.jl")
