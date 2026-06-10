@@ -152,6 +152,75 @@ function _solve(::AbstractMPMStructure, ::DensityIndependent, ::StochasticKernel
     return MPMSolution(ts, u, used_matrices, nothing, :Success, lambdas)
 end
 
+# --- Demographic stochasticity (finite-population integer counts) ---
+
+function _solve(::AbstractMPMStructure, ::DensityIndependent, ::Demographic,
+                prob::MPMProblem, ::DirectIteration;
+                rng::AbstractRNG=Random.default_rng(), kwargs...)
+    mpm = prob.matrix
+    mpm isa MatrixProjectionModel || error(
+        "Demographic solve requires `matrix` to be a MatrixProjectionModel with an " *
+        "A = U + F + C decomposition; got $(typeof(mpm)). Build one with " *
+        "MatrixProjectionModel(U, F[, C]).")
+    U = mpm.U
+    FC = mpm.F .+ mpm.C
+
+    # Survival/movement columns must be sub-stochastic for the multinomial draw.
+    for j in axes(U, 2)
+        s = sum(@view U[:, j])
+        s <= 1 + 1e-8 || error(
+            "Demographic solve requires sub-stochastic survival columns; column $j " *
+            "of U sums to $s > 1. Supply a proper U (survival/growth) / F (fecundity) " *
+            "decomposition rather than folding fecundity into U.")
+    end
+
+    t0, tf = prob.tspan
+    n_steps = tf - t0
+    k = size(U, 1)
+
+    u = Vector{Vector{Float64}}(undef, n_steps + 1)
+    counts = round.(Int, prob.n0)
+    u[1] = Float64.(counts)
+    lambdas = Float64[]
+    n_next = zeros(Int, k)
+
+    for _ in 1:n_steps
+        prev_total = sum(counts)
+        demographic_step!(rng, n_next, counts, U, FC)
+        counts = copy(n_next)
+        new_total = sum(counts)
+        push!(lambdas, prev_total > 0 ? new_total / prev_total : 0.0)
+        u[length(lambdas) + 1] = Float64.(counts)
+    end
+
+    ts = collect(t0:tf)
+    return MPMSolution(ts, u, mpm.A, nothing, :Success, lambdas)
+end
+
+"""
+    demographic_ensemble(prob::MPMProblem; n_reps=100, rng=Random.default_rng())
+
+Run `n_reps` independent demographic-stochastic realizations of `prob` and return
+`(totals, sols)` where `totals` is an `(n_time × n_reps)` matrix of total
+population sizes (directly consumable by `quasi_extinction`) and `sols` is the
+vector of individual `MPMSolution`s. If `prob` is not already a `Demographic`
+problem it is `remake`d as one.
+"""
+function demographic_ensemble(prob::MPMProblem; n_reps::Int=100,
+                              rng::AbstractRNG=Random.default_rng())
+    dprob = prob.stochasticity isa Demographic ? prob :
+            remake(prob; stochasticity = Demographic())
+    sols = [solve(dprob, DirectIteration(); rng=rng) for _ in 1:n_reps]
+    n_time = length(sols[1].t)
+    totals = Matrix{Float64}(undef, n_time, n_reps)
+    for (r, s) in enumerate(sols)
+        @inbounds for tt in 1:n_time
+            totals[tt, r] = sum(s.u[tt])
+        end
+    end
+    return totals, sols
+end
+
 # --- Stochastic parameter resampled ---
 
 function _solve(::AbstractMPMStructure, ::DensityIndependent, ::StochasticParameterResampled,

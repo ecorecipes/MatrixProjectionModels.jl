@@ -22,6 +22,7 @@ export AbstractMPMStructure, LeslieMPM, LefkovitchMPM
 export AbstractProjectionStructure
 export AbstractDensityDependence, DensityIndependent, DensityDependent
 export AbstractStochasticity, Deterministic, StochasticKernelResampled, StochasticParameterResampled
+export Demographic
 export DirectIteration, EigenAnalysis
 
 # --- Layer 3: Problem/Solution ---
@@ -30,7 +31,7 @@ export MPMProblem, remake
 
 include("solve.jl")
 using CommonSolve: solve
-export solve, MPMSolution
+export solve, MPMSolution, demographic_ensemble
 
 # --- Layer 4: Coupled/stateful discrete systems ---
 include("coupled.jl")
