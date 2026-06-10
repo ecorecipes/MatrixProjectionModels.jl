@@ -22,5 +22,6 @@ using Statistics
     include("test_transformation.jl")
     include("test_transitions.jl")
     include("test_time_lag.jl")
+    include("test_demographic.jl")
     include("test_pbdm_migrations.jl")
 end
