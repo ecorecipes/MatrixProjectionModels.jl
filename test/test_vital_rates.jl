@@ -18,16 +18,17 @@
     @testset "vr_vec_growth" begin
         growth = vr_vec_growth(U)
         @test length(growth) == 3
-        # Stage 1: growth = transition to stage 1 (higher = lower index)
-        # Growth means moving to a "higher" (lower index) stage
-        @test growth[1] ≈ 0.0  # Can't grow from stage 1
-        @test growth[2] ≈ 0.0 / 0.6  # No transition from 2 to 1 through upper triangle
+        @test growth[1] ≈ 0.3 / 0.5  # stage 1 -> stage 2
+        @test growth[2] ≈ 0.2 / 0.6  # stage 2 -> stage 3
+        @test growth[3] ≈ 0.0
     end
 
     @testset "vr_vec_shrinkage" begin
         shrinkage = vr_vec_shrinkage(U)
         @test length(shrinkage) == 3
-        @test shrinkage[1] ≈ 0.3 / 0.5  # U[2,1]/sum = transition to lower stage
+        @test shrinkage[1] ≈ 0.0
+        @test shrinkage[2] ≈ 0.0
+        @test shrinkage[3] ≈ 0.1 / 0.4  # stage 3 -> stage 2
     end
 
     @testset "vr_vec_stasis" begin

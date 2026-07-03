@@ -1,3 +1,5 @@
+using Distributions
+
 @testset "Leslie Construction" begin
     @testset "make_leslie_mpm from vectors" begin
         surv = [0.8, 0.5, 0.3]
@@ -33,5 +35,30 @@
 
     @testset "dimension validation" begin
         @test_throws ArgumentError make_leslie_mpm([0.5], [1.0, 2.0, 3.0])
+    end
+
+    @testset "rand_leslie_set samples parameters reproducibly" begin
+        mort = ExponentialMortality(0.1)
+        fec = LogisticFecundity(4.0, 0.4, 8.0)
+        mort_dist = (C = Uniform(0.05, 0.15),)
+        fec_dist = (A = Uniform(3.0, 5.0), k = Uniform(0.2, 0.6), x_mid = Uniform(7.0, 9.0))
+
+        set1 = rand_leslie_set(4;
+            mortality_model = mort,
+            fecundity_model = fec,
+            mortality_params_dist = mort_dist,
+            fecundity_params_dist = fec_dist,
+            n_stages = 8,
+            rng = MersenneTwister(123))
+        set2 = rand_leslie_set(4;
+            mortality_model = mort,
+            fecundity_model = fec,
+            mortality_params_dist = mort_dist,
+            fecundity_params_dist = fec_dist,
+            n_stages = 8,
+            rng = MersenneTwister(123))
+
+        @test any(!isapprox(set1[1].A, m.A) for m in set1[2:end])
+        @test all(set1[i].A ≈ set2[i].A for i in eachindex(set1, set2))
     end
 end

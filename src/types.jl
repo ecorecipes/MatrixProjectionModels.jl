@@ -125,30 +125,10 @@ end
 function MatrixProjectionModel(survival::AbstractVector{T}, fecundity::AbstractVector{T};
                                stages::Vector{StageClass}=StageClass[],
                                stage_names::Vector{Symbol}=Symbol[]) where {T<:Real}
-    n = length(fecundity)
-    length(survival) == n - 1 || length(survival) == n ||
-        throw(DimensionMismatch("survival must have length n-1 or n"))
-
-    A = zeros(T, n, n)
-    U = zeros(T, n, n)
-    F = zeros(T, n, n)
-    C = zeros(T, n, n)
-
-    # Fecundity in first row
-    F[1, :] .= fecundity
-    A[1, :] .= fecundity
-
-    # Survival on sub-diagonal
-    ns = min(length(survival), n - 1)
-    for i in 1:ns
-        U[i+1, i] = survival[i]
-        A[i+1, i] = survival[i]
-    end
-
-    if isempty(stage_names)
-        stage_names = _default_stage_names(n)
-    end
-    MatrixProjectionModel{T, Matrix{T}}(A, U, F, C, stages, stage_names)
+    mpm = make_leslie_mpm(survival, fecundity)
+    resolved_stage_names = isempty(stage_names) ? mpm.stage_names : stage_names
+    return MatrixProjectionModel(mpm.A, mpm.U, mpm.F, mpm.C;
+                                 stages=stages, stage_names=resolved_stage_names)
 end
 
 # Type promotion constructors (produce Matrix{T})

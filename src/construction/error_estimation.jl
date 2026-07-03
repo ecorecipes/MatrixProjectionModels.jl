@@ -34,6 +34,7 @@ function calculate_errors(mpm::MatrixProjectionModel, sample_size::Int;
         err_A = dropdims(std(boot_A; dims=3); dims=3)
         err_U = zeros(n, n)
         err_F = zeros(n, n)
+        err_C = zeros(n, n)
         for i in 1:n, j in 1:n
             if mpm.U[i, j] > 0
                 err_U[i, j] = err_A[i, j]
@@ -41,8 +42,11 @@ function calculate_errors(mpm::MatrixProjectionModel, sample_size::Int;
             if mpm.F[i, j] > 0
                 err_F[i, j] = err_A[i, j]
             end
+            if mpm.C[i, j] > 0
+                err_C[i, j] = err_A[i, j]
+            end
         end
-        return (A=err_A, U=err_U, F=err_F)
+        return (A=err_A, U=err_U, F=err_F, C=err_C)
     elseif type == :ci95
         lo = dropdims(mapslices(x -> quantile(x, 0.025), boot_A; dims=3); dims=3)
         hi = dropdims(mapslices(x -> quantile(x, 0.975), boot_A; dims=3); dims=3)

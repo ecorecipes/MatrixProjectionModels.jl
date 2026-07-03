@@ -137,4 +137,10 @@
         @test all(sum.(sol.u) .< 1e10)
     end
 
+    @testset "Extinction guard" begin
+        lm = LaggedMPM([zeros(2, 2), zeros(2, 2)])
+        sol = solve(MPMProblem(lm, [1.0, 0.0], (0, 3)), DirectIteration())
+        @test all(isfinite, sol.lambdas)
+    end
+
 end

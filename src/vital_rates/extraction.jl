@@ -26,8 +26,8 @@ function vr_vec_growth(matU::AbstractMatrix)
         col_sum = sum(matU[:, j])
         if col_sum > 0
             # Sum of transitions to higher stages
-            upper = sum(matU[i, j] for i in 1:(j-1); init=0.0)
-            growth[j] = upper / col_sum
+            higher = sum(matU[i, j] for i in (j+1):n; init=0.0)
+            growth[j] = higher / col_sum
         end
     end
     return growth
@@ -47,7 +47,7 @@ function vr_vec_shrinkage(matU::AbstractMatrix)
         col_sum = sum(matU[:, j])
         if col_sum > 0
             # Sum of transitions to lower stages
-            lower = sum(matU[i, j] for i in (j+1):n; init=0.0)
+            lower = sum(matU[i, j] for i in 1:(j-1); init=0.0)
             shrinkage[j] = lower / col_sum
         end
     end

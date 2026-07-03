@@ -67,4 +67,24 @@
         show(buf, sol)
         @test occursin("MPMSolution", String(take!(buf)))
     end
+
+    @testset "Extinction guard" begin
+        A0 = zeros(2, 2)
+        n0 = [1.0, 0.0]
+
+        det_sol = solve(MPMProblem(A0, n0, (0, 3)), DirectIteration())
+        @test all(isfinite, det_sol.lambdas)
+
+        dd_prob = MPMProblem(DensityDependent(), (u, p, t) -> zeros(2, 2), n0, (0, 3))
+        dd_sol = solve(dd_prob, DirectIteration())
+        @test all(isfinite, dd_sol.lambdas)
+
+        stoch_kernel_sol = solve(MPMProblem(StochasticKernelResampled(), [A0, A0], n0, (0, 3)), DirectIteration())
+        @test all(isfinite, stoch_kernel_sol.lambdas)
+
+        stoch_param_prob = MPMProblem(StochasticParameterResampled(), _ -> zeros(2, 2), n0, (0, 3);
+            env_state = (rng, t) -> nothing)
+        stoch_param_sol = solve(stoch_param_prob, DirectIteration(); rng=MersenneTwister(7))
+        @test all(isfinite, stoch_param_sol.lambdas)
+    end
 end

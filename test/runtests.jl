@@ -15,6 +15,7 @@ using Statistics
     include("test_mortality_models.jl")
     include("test_fecundity_models.jl")
     include("test_sampling_error.jl")
+    include("test_density_response.jl")
     include("test_life_tables.jl")
     include("test_vital_rates.jl")
     include("test_life_history.jl")

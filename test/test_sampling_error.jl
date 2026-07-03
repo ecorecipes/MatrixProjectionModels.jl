@@ -20,9 +20,12 @@
     end
 
     @testset "calculate_errors" begin
-        errs = calculate_errors(mpm, 50; n_boot=100, rng=rng)
+        C = [0.0 0.1 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
+        errs = calculate_errors(MatrixProjectionModel(U, F, C), 50; n_boot=100, rng=rng)
         @test size(errs.A) == (3, 3)
+        @test size(errs.C) == (3, 3)
         @test all(errs.A .>= 0)
+        @test errs.C[1, 2] ≥ 0
     end
 
     @testset "compute_ci" begin

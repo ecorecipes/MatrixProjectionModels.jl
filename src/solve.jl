@@ -74,7 +74,8 @@ function _solve(::AbstractMPMStructure, ::DensityIndependent, ::Deterministic,
     for t in 1:n_steps
         mul!(u_new, A, u[t])
         n_total = sum(u_new)
-        push!(lambdas, n_total / sum(u[t]))
+        prev_total = sum(u[t])
+        push!(lambdas, prev_total > 0 ? n_total / prev_total : 0.0)
         if prob.normalize && n_total > 0
             u_new ./= n_total
         end
@@ -104,7 +105,8 @@ function _solve(::AbstractMPMStructure, ::DensityDependent, ::Deterministic,
         push!(matrices, A)
         u_new = A * u[t]
         n_total = sum(u_new)
-        push!(lambdas, n_total / sum(u[t]))
+        prev_total = sum(u[t])
+        push!(lambdas, prev_total > 0 ? n_total / prev_total : 0.0)
         if prob.normalize && n_total > 0
             u_new ./= n_total
         end
@@ -141,7 +143,8 @@ function _solve(::AbstractMPMStructure, ::DensityIndependent, ::StochasticKernel
         push!(used_matrices, A)
         u_new = A * u[t]
         n_total = sum(u_new)
-        push!(lambdas, n_total / sum(u[t]))
+        prev_total = sum(u[t])
+        push!(lambdas, prev_total > 0 ? n_total / prev_total : 0.0)
         if prob.normalize && n_total > 0
             u_new ./= n_total
         end
@@ -245,7 +248,8 @@ function _solve(::AbstractMPMStructure, ::DensityIndependent, ::StochasticParame
         push!(matrices, A)
         u_new = A * u[t]
         n_total = sum(u_new)
-        push!(lambdas, n_total / sum(u[t]))
+        prev_total = sum(u[t])
+        push!(lambdas, prev_total > 0 ? n_total / prev_total : 0.0)
         if prob.normalize && n_total > 0
             u_new ./= n_total
         end

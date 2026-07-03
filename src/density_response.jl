@@ -177,10 +177,23 @@ end
                   matF::AbstractMatrix, N::Real)
 
 Apply density-dependent modification to survival (U) and fecundity (F) matrices.
+`growth`, `recruitment`, and lagged density responses are not yet implemented for
+MPM matrix transforms and will raise an error if requested.
 Returns modified (U_dd, F_dd) matrices.
 """
+function _validate_density_spec(spec::DensityVitalRateSpec)
+    spec.growth isa ConstantDensity ||
+        throw(ArgumentError("DensityVitalRateSpec.growth is not applied by apply_density; use ConstantDensity() or transform the transition matrix explicitly."))
+    spec.recruitment isa ConstantDensity ||
+        throw(ArgumentError("DensityVitalRateSpec.recruitment is not applied by apply_density; use ConstantDensity() or transform the recruitment matrix explicitly."))
+    spec.time_delay == 1 ||
+        throw(ArgumentError("DensityVitalRateSpec.time_delay is not applied by apply_density; only time_delay = 1 is currently supported."))
+    return spec
+end
+
 function apply_density(spec::DensityVitalRateSpec,
                        matU::AbstractMatrix, matF::AbstractMatrix, N::Real)
+    _validate_density_spec(spec)
     surv_mod = spec.survival(N)
     fec_mod = spec.fecundity(N)
     return matU .* surv_mod, matF .* fec_mod
@@ -192,10 +205,13 @@ end
 
 Apply density dependence to a combined A matrix. Elements in `fec_rows`
 are modified by the fecundity response; others by the survival response.
+`growth`, `recruitment`, and lagged density responses are not yet implemented for
+combined matrices and will raise an error if requested.
 """
 function apply_density(spec::DensityVitalRateSpec,
                        matA::AbstractMatrix, N::Real;
-                       fec_rows::AbstractVector{Int}=Int[])
+                       fec_rows::AbstractVector{Int}=1:1)
+    _validate_density_spec(spec)
     result = copy(float.(matA))
     surv_mod = spec.survival(N)
     fec_mod = spec.fecundity(N)
