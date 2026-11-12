@@ -29,6 +29,18 @@
         @test isfinite(age)
     end
 
+    @testset "net_repro_rate life-table truncation" begin
+        # seedling -> adult (0.3), adult survival 0.5, fecundity 3.6: R0 = 0.3 * 3.6 / (1 - 0.5)
+        U2 = [0.0 0.0; 0.3 0.5]
+        F2 = [0.0 3.6; 0.0 0.0]
+        @test net_repro_rate(U2, F2; method=:fundamental) ≈ 2.16
+        # the default life table stops once lx < 0.01 (seven ages here)
+        @test net_repro_rate(U2, F2) ≈ 2.16 * (1 - 0.5^6)
+        @test net_repro_rate(U2, F2; lx_crit=1e-14) ≈ 2.16 atol = 1e-12
+        @test net_repro_rate(U2, F2; lx_crit=0.0, xmax=3) ≈ 3.6 * (0.3 + 0.15 + 0.075)
+        @test net_repro_rate(U2, F2; method=:fundamental, lx_crit=0.5) ≈ 2.16
+    end
+
     @testset "net_repro_rate" begin
         R0 = net_repro_rate(U, F; method=:generation)
         @test R0 >= 0
