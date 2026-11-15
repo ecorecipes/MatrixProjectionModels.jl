@@ -148,6 +148,62 @@
         @test remake(prob; tspan = (0, 5)).tspan == (0, 5) && remake(prob; tspan = (0, 5)) isa CoupledMPMProblem
     end
 
+    @testset "Coupled-system layer shared through StructuredPopulationCore" begin
+        SPC = MatrixProjectionModels.StructuredPopulationCore
+        # the container, the built-in events and rules, and the helpers are the core's, exported here
+        @test PopulationComponent === SPC.PopulationComponent
+        @test PopulationSystem === SPC.PopulationSystem
+        @test Observable === SPC.Observable
+        @test AbstractScheduledEvent === SPC.AbstractScheduledEvent
+        @test AbstractInteractionRule === SPC.AbstractInteractionRule
+        @test AbstractTransitionRule === SPC.AbstractInteractionRule
+        @test PulseRelease === SPC.PulseRelease
+        @test SingleDayRelease === SPC.SingleDayRelease
+        @test SprayEvent === SPC.SprayEvent
+        @test TransferRule === SPC.TransferRule
+        @test ReproductionRule === SPC.ReproductionRule
+        @test MortalityRule === SPC.MortalityRule
+        @test CustomRule === SPC.CustomRule
+        @test get_state === SPC.get_state
+        @test has_state === SPC.has_state
+        @test total_population === SPC.total_population
+        @test component_total === SPC.component_total
+        @test component_totals === SPC.component_totals
+        @test by_species === SPC.by_species
+        @test by_type === SPC.by_type
+        @test by_patch === SPC.by_patch
+        @test inject! === SPC.inject!
+        @test remove_fraction! === SPC.remove_fraction!
+        @test apply_event! === SPC.apply_event!
+        @test n_stages === SPC.n_stages
+        @test allocate === SPC.allocate
+        @test supply_demand_index === SPC.supply_demand_index
+        @test CustomEvent <: AbstractScheduledEvent
+
+        # a MatrixProjectionModel supplies the stage names and is checked against the vector
+        mpm = MatrixProjectionModel([0.0 2.0; 0.5 0.0]; stage_names = [:young, :old])
+        @test PopulationComponent(mpm, [1.0, 1.0]).stage_names == [:young, :old]
+        @test_throws DimensionMismatch PopulationComponent(mpm, [1.0, 1.0, 1.0])
+        @test n_stages(mpm) == 2
+
+        # validation kept from before the move
+        sys = PopulationSystem(:a => PopulationComponent([0.0 2.0; 0.5 0.0], [1.0, 1.0]))
+        @test_throws ArgumentError inject!(sys, :a, 1, -1.0)
+        @test_throws BoundsError inject!(sys, :a, 3, 1.0)
+        @test_throws ArgumentError remove_fraction!(sys, :a, 1.5)
+        @test_throws ArgumentError PopulationSystem(:a => [1.0, 1.0])
+        @test PulseRelease(:a, 1.0, 2).start_day == 0
+        spray = SprayEvent([:missing], [0.5], [0])
+        @test_throws ArgumentError apply_event!(spray, sys, 0, nothing)
+        @test_throws ArgumentError solve(CoupledMPMProblem(sys, (0, 1); events = [spray]), DirectIteration())
+
+        # a coupled matrix problem needs stage vectors
+        other = SPC.PopulationComponent{Float64, Nothing, Base.RefValue{Float64}}(
+            nothing, Ref(1.0), [:all], :default, :default, :default)
+        mixed = PopulationSystem(:a => sys[:a], :b => other)
+        @test_throws ArgumentError CoupledMPMProblem(mixed, (0, 1))
+    end
+
     @testset "Ordered hybrid substeps" begin
         p = (
             radiation = [6.0, 2.0],

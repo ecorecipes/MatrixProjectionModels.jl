@@ -15,6 +15,20 @@ using Statistics
 import StructuredPopulationCore: demographic_ensemble, to_discrete_problem, set_state!
 import SciMLBase: remake
 
+# The coupled-system data layer is shared with PhysiologicallyBasedDemographicModels.jl. Its
+# types and functions live in StructuredPopulationCore, which does not export them: they are
+# imported here, extended where matrix models need it, and exported below.
+import StructuredPopulationCore: AbstractStateVariable, AbstractInteractionRule,
+    AbstractScheduledEvent
+import StructuredPopulationCore: PopulationComponent, PopulationSystem, Observable
+import StructuredPopulationCore: PulseRelease, SingleDayRelease, SprayEvent
+import StructuredPopulationCore: TransferRule, ReproductionRule, MortalityRule, CustomRule
+import StructuredPopulationCore: get_state, has_state, total_population, component_total,
+    component_totals, by_species, by_type, by_patch, inject!, remove_fraction!, apply_event!
+import StructuredPopulationCore: n_stages, allocate, supply_demand_index
+import StructuredPopulationCore: component_stage_names, validate_component_model
+import StructuredPopulationCore: _validate_fraction, _validate_nonnegative, _validate_stage
+
 # --- Layer 1: Utility functions ---
 include("utils.jl")
 # area_under_curve re-exported from StructuredPopulationCore
@@ -50,7 +64,7 @@ export PriorityAllocationPool, allocate, allocation_stress, supply_demand_index
 export AbstractDailySubstep, apply_substep!
 export StateUpdateSubstep, CustomSubstep
 export StageFlux, StageTransfer, RuleEffect
-export AbstractTransitionRule, AbstractScheduledEvent
+export AbstractTransitionRule, AbstractInteractionRule, AbstractScheduledEvent
 export apply_rule, apply_event!
 export TransferRule, ReproductionRule, MortalityRule, CustomRule
 export PulseRelease, SingleDayRelease, SprayEvent, CustomEvent

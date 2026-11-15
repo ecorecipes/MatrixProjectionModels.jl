@@ -4,85 +4,27 @@ Stateful discrete matrix population systems.
 This layer complements `MPMProblem` for models that need multiple named
 components, auxiliary mutable state, scheduled events, and post-step
 transition rules without hand-written outer iteration loops.
+
+The components, the system, the built-in events and rules and the helpers that read and
+change a system are defined in StructuredPopulationCore (`src/coupled_systems.jl`) and
+shared with PhysiologicallyBasedDemographicModels.jl. This file adds what is specific to
+matrix models: the `MatrixProjectionModel` methods of the component hooks, the allocation
+pool, the substeps, the deferred rule effects, and the problem, solution and solver.
 """
 
 # ---------------------------------------------------------------------------
 # Population components and systems
 # ---------------------------------------------------------------------------
 
-"""
-    PopulationComponent(model, population; stage_names, species, type, patch)
-
-A named stage-structured population component in a `PopulationSystem`.
-
-- `model` may be a `MatrixProjectionModel`, an `AbstractMatrix`, or a callable
-  `(system, day, p) -> AbstractMatrix`.
-- `population` is the current stage vector.
-- `species`, `type`, and `patch` carry lightweight grouping metadata.
-"""
-struct PopulationComponent{T<:Real, M, V<:AbstractVector{T}}
-    model::M
-    population::V
-    stage_names::Vector{Symbol}
-    species::Symbol
-    type::Symbol
-    patch::Symbol
-end
-
-function PopulationComponent(model, population::AbstractVector{<:Real};
-        stage_names::AbstractVector{Symbol} = Symbol[],
-        species::Symbol = :default,
-        type::Symbol = :default,
-        patch::Symbol = :default)
-    pop = collect(float.(population))
-    isempty(pop) && throw(ArgumentError("population must contain at least one stage"))
-    inferred_stage_names = isempty(stage_names) ?
-        _component_stage_names(model, length(pop)) :
-        collect(stage_names)
-    length(inferred_stage_names) == length(pop) || throw(DimensionMismatch(
-        "stage_names length $(length(inferred_stage_names)) does not match population length $(length(pop))"))
-    _validate_component_model(model, length(pop))
-    return PopulationComponent{eltype(pop), typeof(model), typeof(pop)}(
-        model,
-        pop,
-        inferred_stage_names,
-        species,
-        type,
-        patch)
-end
-
-function _component_stage_names(model::MatrixProjectionModel, n::Int)
+function component_stage_names(model::MatrixProjectionModel, n::Int)
     size(model.A) == (n, n) || throw(DimensionMismatch(
         "model has size $(size(model.A)); expected ($n, $n)"))
     return copy(model.stage_names)
 end
 
-function _component_stage_names(model::AbstractMatrix, n::Int)
-    size(model) == (n, n) || throw(DimensionMismatch(
-        "model has size $(size(model)); expected ($n, $n)"))
-    return _default_stage_names(n)
-end
-
-_component_stage_names(model, n::Int) = _default_stage_names(n)
-
-function _validate_component_model(model::MatrixProjectionModel, n::Int)
+function validate_component_model(model::MatrixProjectionModel, n::Int)
     size(model.A) == (n, n) || throw(DimensionMismatch(
         "model has size $(size(model.A)); expected ($n, $n)"))
-end
-
-function _validate_component_model(model::AbstractMatrix, n::Int)
-    size(model) == (n, n) || throw(DimensionMismatch(
-        "model has size $(size(model)); expected ($n, $n)"))
-end
-
-_validate_component_model(model, n::Int) = nothing
-
-function _convert_component(comp::PopulationComponent, ::Type{T}) where {T<:Real}
-    PopulationComponent(comp.model, T.(comp.population);
-        stage_names = comp.stage_names,
-        species = comp.species,
-        type = comp.type,
-        patch = comp.patch)
 end
 
 function _copy_component(comp::PopulationComponent)
@@ -93,116 +35,23 @@ function _copy_component(comp::PopulationComponent)
         patch = comp.patch)
 end
 
-"""
-    PopulationSystem(components...; state = NamedTuple())
-
-Ordered collection of named `PopulationComponent`s plus optional mutable
-auxiliary state exposed to rules, events, and observables.
-"""
-struct PopulationSystem{T<:Real}
-    order::Vector{Symbol}
-    components::Dict{Symbol, PopulationComponent{T}}
-    state::Dict{Symbol, Any}
-end
-
-function PopulationSystem(pairs::Pair{Symbol}...; state = NamedTuple())
-    isempty(pairs) && throw(ArgumentError("PopulationSystem must have at least one component"))
-
-    order = Symbol[]
-    raw_components = Pair{Symbol, Any}[]
-    for (name, value) in pairs
-        name in order && throw(ArgumentError("duplicate component name: $name"))
-        value isa PopulationComponent || throw(ArgumentError(
-            "expected PopulationComponent for :$name, got $(typeof(value))"))
-        push!(order, name)
-        push!(raw_components, name => value)
-    end
-
-    T = promote_type(map(p -> eltype(p.second.population), raw_components)...)
-    components = Dict{Symbol, PopulationComponent{T}}()
-    for (name, comp) in raw_components
-        components[name] = _convert_component(comp, T)
-    end
-
-    return PopulationSystem{T}(copy(order), components, _coerce_state(state))
-end
-
-function _coerce_state(state)
-    if state isa NamedTuple
-        return Dict{Symbol, Any}(k => deepcopy(v) for (k, v) in pairs(state))
-    elseif state isa AbstractDict
-        return Dict{Symbol, Any}(Symbol(k) => deepcopy(v) for (k, v) in pairs(state))
-    elseif state isa AbstractVector{<:Pair}
-        return Dict{Symbol, Any}(Symbol(k) => deepcopy(v) for (k, v) in state)
-    else
-        throw(ArgumentError("state must be a NamedTuple, AbstractDict, or vector of pairs"))
-    end
-end
-
-Base.getindex(sys::PopulationSystem, name::Symbol) = sys.components[name]
-Base.haskey(sys::PopulationSystem, name::Symbol) = haskey(sys.components, name)
-Base.keys(sys::PopulationSystem) = sys.order
-Base.length(sys::PopulationSystem) = length(sys.order)
-Base.pairs(sys::PopulationSystem) = ((name, sys.components[name]) for name in sys.order)
-
-function Base.show(io::IO, sys::PopulationSystem)
-    state_suffix = isempty(sys.state) ? "" : ", $(length(sys.state)) state vars"
-    print(io, "PopulationSystem($(length(sys)) components: $(join(sys.order, ", "))$state_suffix)")
-end
-
-get_state(sys::PopulationSystem, name::Symbol) = sys.state[name]
-set_state!(sys::PopulationSystem, name::Symbol, value) = (sys.state[name] = value)
-has_state(sys::PopulationSystem, name::Symbol) = haskey(sys.state, name)
-
 function _copy_system(sys::PopulationSystem)
     return PopulationSystem(
         (name => _copy_component(sys[name]) for name in sys.order)...;
         state = deepcopy(sys.state))
 end
 
-total_population(sys::PopulationSystem) = sum(sum(comp.population) for (_, comp) in pairs(sys))
-component_total(sys::PopulationSystem, name::Symbol) = sum(sys[name].population)
-component_totals(sys::PopulationSystem{T}) where {T} =
-    Dict{Symbol, T}(name => sum(comp.population) for (name, comp) in pairs(sys))
-
-by_species(sys::PopulationSystem, species::Symbol) =
-    [(name, comp) for (name, comp) in pairs(sys) if comp.species == species]
-
-by_type(sys::PopulationSystem, type::Symbol) =
-    [(name, comp) for (name, comp) in pairs(sys) if comp.type == type]
-
-by_patch(sys::PopulationSystem, patch::Symbol) =
-    [(name, comp) for (name, comp) in pairs(sys) if comp.patch == patch]
-
-function _validate_stage(comp::PopulationComponent, stage::Int)
-    1 <= stage <= length(comp.population) || throw(BoundsError(
-        "stage $stage out of range for component with $(length(comp.population)) stages"))
-end
-
-function inject!(sys::PopulationSystem, name::Symbol, stage::Int, amount::Real)
-    amount >= 0 || throw(ArgumentError("injected amount must be nonnegative"))
-    comp = sys[name]
-    _validate_stage(comp, stage)
-    comp.population[stage] += amount
+# A coupled matrix problem steps each component as `A * n`, so every component must carry
+# its numbers in a stage vector.
+function _require_vector_carriers(sys::PopulationSystem)
+    for (name, comp) in pairs(sys)
+        comp.population isa AbstractVector{<:Real} || throw(ArgumentError(
+            "component :$name carries its population in a $(typeof(comp.population)); " *
+            "CoupledMPMProblem needs a stage vector"))
+    end
     return nothing
 end
 
-inject!(sys::PopulationSystem, name::Symbol, amount::Real) = inject!(sys, name, 1, amount)
-
-function remove_fraction!(sys::PopulationSystem, name::Symbol, fraction::Real)
-    _validate_fraction("fraction", fraction)
-    comp = sys[name]
-    comp.population .*= (one(eltype(comp.population)) - eltype(comp.population)(fraction))
-    return nothing
-end
-
-function remove_fraction!(sys::PopulationSystem, name::Symbol, stage::Int, fraction::Real)
-    _validate_fraction("fraction", fraction)
-    comp = sys[name]
-    _validate_stage(comp, stage)
-    comp.population[stage] *= (one(eltype(comp.population)) - eltype(comp.population)(fraction))
-    return nothing
-end
 
 # ---------------------------------------------------------------------------
 # Hybrid allocation helpers and ordered daily substeps
@@ -436,42 +285,23 @@ function _normalize_rule_effect(result)
         "rule outputs must be RuleEffect, StageFlux, StageTransfer, vectors of them, or NamedTuples"))
 end
 
-abstract type AbstractTransitionRule end
-abstract type AbstractScheduledEvent end
+"""
+    AbstractTransitionRule
 
+The supertype of the rules of a coupled matrix problem. It is the shared
+`AbstractInteractionRule` of StructuredPopulationCore under the name this package has
+always used.
+"""
+const AbstractTransitionRule = AbstractInteractionRule
+
+"""
+    apply_rule(rule, system, day, p) -> RuleEffect
+
+Evaluate a rule on the stepped system and return the changes it asks for, without
+applying them. The solver applies the effects of all rules together, with a
+mass-balance check. Rule functions are called as `fn(system, day, p)`.
+"""
 function apply_rule end
-function apply_event! end
-
-_validate_fraction(label::AbstractString, value::Real) =
-    (isfinite(value) && 0 <= value <= 1) ||
-    throw(ArgumentError("$label must be finite and lie in [0, 1], got $value"))
-
-function _validate_nonnegative(label::AbstractString, value::Real)
-    isfinite(value) || throw(ArgumentError("$label must be finite, got $value"))
-    value >= 0 || throw(ArgumentError("$label must be nonnegative, got $value"))
-    return value
-end
-
-"""
-    TransferRule(source, target, fraction_fn; source_stage, target_stage, name)
-
-Transfer a fraction of one source stage into a target stage after stepping.
-"""
-struct TransferRule{F} <: AbstractTransitionRule
-    name::Symbol
-    source::Symbol
-    source_stage::Int
-    target::Symbol
-    target_stage::Int
-    fraction_fn::F
-end
-
-function TransferRule(source::Symbol, target::Symbol, fraction_fn;
-        source_stage::Int = 1,
-        target_stage::Int = 1,
-        name::Symbol = Symbol(source, "_to_", target))
-    return TransferRule(name, source, source_stage, target, target_stage, fraction_fn)
-end
 
 function apply_rule(rule::TransferRule, sys::PopulationSystem, day::Int, p)
     comp = sys[rule.source]
@@ -485,25 +315,6 @@ function apply_rule(rule::TransferRule, sys::PopulationSystem, day::Int, p)
         metrics = (transferred = amount,))
 end
 
-"""
-    ReproductionRule(target, reproduction_fn; stage, name)
-
-Inject offspring into a target stage after stepping.
-"""
-struct ReproductionRule{F} <: AbstractTransitionRule
-    name::Symbol
-    target::Symbol
-    stage::Int
-    reproduction_fn::F
-end
-
-function ReproductionRule(target::Symbol, reproduction_fn;
-        stage::Int = 1,
-        name::Symbol = Symbol("reproduce_", target))
-    stage >= 1 || throw(ArgumentError("stage must be >= 1"))
-    return ReproductionRule(name, target, stage, reproduction_fn)
-end
-
 function apply_rule(rule::ReproductionRule, sys::PopulationSystem, day::Int, p)
     _validate_stage(sys[rule.target], rule.stage)
     offspring = rule.reproduction_fn(sys, day, p)
@@ -511,25 +322,6 @@ function apply_rule(rule::ReproductionRule, sys::PopulationSystem, day::Int, p)
     return RuleEffect(
         fluxes = [StageFlux(rule.target, rule.stage, offspring)],
         metrics = (offspring = offspring,))
-end
-
-"""
-    MortalityRule(target, mortality_fn; stage, name)
-
-Apply additional post-step mortality to one stage or all stages (`stage = 0`).
-"""
-struct MortalityRule{F} <: AbstractTransitionRule
-    name::Symbol
-    target::Symbol
-    stage::Int
-    mortality_fn::F
-end
-
-function MortalityRule(target::Symbol, mortality_fn;
-        stage::Int = 0,
-        name::Symbol = Symbol("mortality_", target))
-    stage >= 0 || throw(ArgumentError("stage must be >= 0"))
-    return MortalityRule(name, target, stage, mortality_fn)
 end
 
 function apply_rule(rule::MortalityRule, sys::PopulationSystem, day::Int, p)
@@ -551,111 +343,9 @@ function apply_rule(rule::MortalityRule, sys::PopulationSystem, day::Int, p)
     return RuleEffect(fluxes = fluxes, metrics = (removed = removed, mortality = frac))
 end
 
-"""
-    CustomRule(name, apply_fn)
-
-Escape hatch for user-defined rule logic. `apply_fn(system, day, p)` must return
-one of the accepted `RuleEffect`-compatible outputs.
-"""
-struct CustomRule{F} <: AbstractTransitionRule
-    name::Symbol
-    apply_fn::F
-end
-
+# `apply_fn(system, day, p)` must return one of the accepted `RuleEffect`-compatible outputs.
 apply_rule(rule::CustomRule, sys::PopulationSystem, day::Int, p) =
     _normalize_rule_effect(rule.apply_fn(sys, day, p))
-
-"""
-    PulseRelease(target, amount, interval; stage_idx, start_day, end_day, name)
-
-Inject a fixed amount on a regular day interval.
-"""
-struct PulseRelease{T<:Real} <: AbstractScheduledEvent
-    name::Symbol
-    target::Symbol
-    stage_idx::Int
-    amount::T
-    interval::Int
-    start_day::Int
-    end_day::Int
-end
-
-function PulseRelease(target::Symbol, amount::Real, interval::Int;
-        stage_idx::Int = 1,
-        start_day::Int = 0,
-        end_day::Int = typemax(Int),
-        name::Symbol = Symbol("pulse_", target))
-    interval > 0 || throw(ArgumentError("interval must be positive"))
-    stage_idx >= 1 || throw(ArgumentError("stage_idx must be >= 1"))
-    _validate_nonnegative("release amount", amount)
-    return PulseRelease(name, target, stage_idx, float(amount), interval, start_day, end_day)
-end
-
-function apply_event!(ev::PulseRelease, sys::PopulationSystem, day::Int, p)
-    day < ev.start_day && return false
-    day > ev.end_day && return false
-    (day - ev.start_day) % ev.interval == 0 || return false
-    inject!(sys, ev.target, ev.stage_idx, ev.amount)
-    return true
-end
-
-"""
-    SingleDayRelease(target, amount, day; stage_idx, name)
-
-Inject a fixed amount on exactly one day.
-"""
-struct SingleDayRelease{T<:Real} <: AbstractScheduledEvent
-    name::Symbol
-    target::Symbol
-    stage_idx::Int
-    amount::T
-    day::Int
-end
-
-function SingleDayRelease(target::Symbol, amount::Real, day::Int;
-        stage_idx::Int = 1,
-        name::Symbol = Symbol("release_", target))
-    stage_idx >= 1 || throw(ArgumentError("stage_idx must be >= 1"))
-    _validate_nonnegative("release amount", amount)
-    return SingleDayRelease(name, target, stage_idx, float(amount), day)
-end
-
-function apply_event!(ev::SingleDayRelease, sys::PopulationSystem, day::Int, p)
-    day == ev.day || return false
-    inject!(sys, ev.target, ev.stage_idx, ev.amount)
-    return true
-end
-
-"""
-    SprayEvent(targets, kill_fractions, days; name)
-
-Apply multiplicative mortality to named components on specified days.
-"""
-struct SprayEvent <: AbstractScheduledEvent
-    name::Symbol
-    targets::Vector{Symbol}
-    kill_fractions::Vector{Float64}
-    days::Vector{Int}
-end
-
-function SprayEvent(targets::AbstractVector{Symbol},
-        kill_fractions::AbstractVector{<:Real},
-        days::AbstractVector{Int};
-        name::Symbol = :spray)
-    length(targets) == length(kill_fractions) || throw(DimensionMismatch(
-        "targets length $(length(targets)) does not match kill_fractions length $(length(kill_fractions))"))
-    foreach(frac -> _validate_fraction("kill fraction", frac), kill_fractions)
-    return SprayEvent(name, collect(targets), Float64.(kill_fractions), collect(days))
-end
-
-function apply_event!(ev::SprayEvent, sys::PopulationSystem, day::Int, p)
-    day in ev.days || return false
-    for (target, frac) in zip(ev.targets, ev.kill_fractions)
-        haskey(sys, target) || throw(ArgumentError("unknown spray target :$target"))
-        remove_fraction!(sys, target, frac)
-    end
-    return true
-end
 
 """
     CustomEvent(name, apply_fn)
@@ -672,16 +362,6 @@ function apply_event!(ev::CustomEvent, sys::PopulationSystem, day::Int, p)
     result = ev.apply_fn(sys, day, p)
     result isa Bool || throw(ArgumentError("custom events must return Bool, got $(typeof(result))"))
     return result
-end
-
-"""
-    Observable(name, fn)
-
-Record a scalar observable at each stored time point.
-"""
-struct Observable{F}
-    name::Symbol
-    fn::F
 end
 
 _rule_name(rule::AbstractTransitionRule) = getfield(rule, :name)
@@ -721,6 +401,7 @@ function CoupledMPMProblem(system::PopulationSystem, tspan::Tuple{Int, Int};
     _ensure_unique_names(substeps, "substep")
     _ensure_unique_names(rules, "rule")
     _ensure_unique_names(observables, "observable")
+    _require_vector_carriers(system)
     return CoupledMPMProblem(system, tspan, p, collect(substeps), collect(rules), collect(events), collect(observables), normalize)
 end
 
