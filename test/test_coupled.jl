@@ -114,6 +114,15 @@
         @test length(sol.rule_log[:wild_births]) == 3
         @test sol[:sterile][2] > sol[:sterile][1]
         @test sol.observables[:total][end] > 0
+
+        # the matrix of every step is kept by default, and can be left out
+        @test length(sol.component_matrices[:wild]) == 3 && sol.component_matrices[:wild][1] == wild_model
+        lean = solve(prob, DirectIteration(); save_matrices = false)
+        @test lean.retcode == :Success
+        @test all(isempty, values(lean.component_matrices))
+        @test lean.u == sol.u && lean[:wild] == sol[:wild] && lean[:sterile] == sol[:sterile]
+        @test lean.observables[:total] == sol.observables[:total] && lean.event_log == sol.event_log
+        @test lean.rule_log[:wild_births] == sol.rule_log[:wild_births]
     end
 
     @testset "Dynamic component matrices and SciML lowering" begin
@@ -128,6 +137,14 @@
         @test dp.u0 isa PopulationSystem
         sol = solve(prob, DirectIteration())
         @test sol[:population][2] ≈ sum([0.0 1.5; 0.5 0.4] * [5.0, 1.0])
+        # one step of the discrete problem is one step of the solver
+        @test dp.f(dp.u0, dp.p, 0.0)[:population].population ≈ sol.u[2][:population]
+        @test sol.component_matrices[:population][2] == [0.0 1.5; 0.5 0.4]
+        # verbs shared with the other model packages: one function each, extended here
+        @test to_discrete_problem === MatrixProjectionModels.StructuredPopulationCore.to_discrete_problem
+        @test demographic_ensemble === MatrixProjectionModels.StructuredPopulationCore.demographic_ensemble
+        @test remake === MatrixProjectionModels.SciMLBase.remake
+        @test remake(prob; tspan = (0, 5)).tspan == (0, 5) && remake(prob; tspan = (0, 5)) isa CoupledMPMProblem
     end
 
     @testset "Ordered hybrid substeps" begin

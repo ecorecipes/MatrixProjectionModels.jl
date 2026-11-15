@@ -763,7 +763,9 @@ end
 """
     CoupledMPMSolution
 
-Result of solving a `CoupledMPMProblem`.
+Result of solving a `CoupledMPMProblem`. `component_matrices[name][step]` is the projection
+matrix used for a component at a step; the vectors are empty if the problem was solved with
+`save_matrices = false`.
 """
 struct CoupledMPMSolution{T, U, M, S, O, R} <: AbstractProjectionSolution
     t::Vector{Int}
@@ -875,7 +877,8 @@ end
 
 function _advance_one_day!(sys::PopulationSystem, day::Int, p, events, substeps, rules;
         normalize::Bool = false,
-        event_log = nothing)
+        event_log = nothing,
+        save_matrices::Bool = true)
     for event in events
         fired = apply_event!(event, sys, day, p)
         if fired && event_log !== nothing
@@ -898,7 +901,7 @@ function _advance_one_day!(sys::PopulationSystem, day::Int, p, events, substeps,
     for name in sys.order
         comp = sys[name]
         A = _materialize_component_matrix(comp, sys, day, p)
-        matrices[name] = Matrix(A)
+        save_matrices && (matrices[name] = Matrix(A))
         stepped[name] = Vector(A * current[name])
     end
 
@@ -921,7 +924,21 @@ function CommonSolve.solve(prob::CoupledMPMProblem, ::EigenAnalysis; kwargs...)
     throw(ArgumentError("EigenAnalysis is not defined for CoupledMPMProblem"))
 end
 
-function CommonSolve.solve(prob::CoupledMPMProblem, ::DirectIteration = DirectIteration(); kwargs...)
+"""
+    solve(prob::CoupledMPMProblem, DirectIteration(); save_matrices = true)
+
+Iterate a coupled problem one time step at a time. The [`CoupledMPMSolution`](@ref) holds the
+state at every time point (`u`), the component totals, the substep and rule logs, the
+observables and, for each component, the projection matrix used at each step
+(`component_matrices`).
+
+Keeping the matrices costs one dense matrix per component and time step. With
+`save_matrices = false` they are not kept, and `component_matrices` holds an empty vector for
+each component. Use it for long runs, or for components with many stages, when only the
+trajectory is wanted.
+"""
+function CommonSolve.solve(prob::CoupledMPMProblem, ::DirectIteration = DirectIteration();
+        save_matrices::Bool = true, kwargs...)
     sys = _copy_system(prob.system)
     t0, tf = prob.tspan
     n_steps = tf - t0
@@ -944,7 +961,7 @@ function CommonSolve.solve(prob::CoupledMPMProblem, ::DirectIteration = DirectIt
     end
 
     component_matrices = Dict{Symbol, Vector{Any}}(
-        name => Vector{Any}(undef, n_steps) for name in sys.order)
+        name => Vector{Any}(undef, save_matrices ? n_steps : 0) for name in sys.order)
     substep_log = Dict{Symbol, Vector{Any}}(
         _substep_name(substep) => Vector{Any}(undef, n_steps) for substep in prob.substeps)
     rule_log = Dict{Symbol, Vector{Any}}(
@@ -961,10 +978,11 @@ function CommonSolve.solve(prob::CoupledMPMProblem, ::DirectIteration = DirectIt
             prob.substeps,
             prob.rules;
             normalize = prob.normalize,
-            event_log = event_log)
+            event_log = event_log,
+            save_matrices = save_matrices)
 
         for name in sys.order
-            component_matrices[name][step] = matrices[name]
+            save_matrices && (component_matrices[name][step] = matrices[name])
             component_totals_store[name][step + 1] = sum(sys[name].population)
         end
 

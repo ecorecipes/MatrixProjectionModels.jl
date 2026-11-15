@@ -25,7 +25,7 @@ function to_discrete_problem(prob::CoupledMPMProblem)
     function coupled_step(sys, p, t)
         sys_new = _copy_system(sys)
         _advance_one_day!(sys_new, Int(round(t)), p, prob.events, prob.substeps, prob.rules;
-            normalize = prob.normalize)
+            normalize = prob.normalize, save_matrices = false)
         return sys_new
     end
     return SciMLBase.DiscreteProblem(coupled_step, _copy_system(prob.system), Float64.(prob.tspan), prob.p)

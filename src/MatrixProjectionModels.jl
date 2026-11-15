@@ -9,6 +9,12 @@ using RecipesBase
 using SciMLBase
 using Statistics
 
+# Functions shared across the stack are extended here rather than redefined, so that their
+# names stay usable when several packages are loaded together: two verbs belong to
+# StructuredPopulationCore, `remake` to SciMLBase.
+import StructuredPopulationCore: demographic_ensemble, to_discrete_problem
+import SciMLBase: remake
+
 # --- Layer 1: Utility functions ---
 include("utils.jl")
 # area_under_curve re-exported from StructuredPopulationCore
