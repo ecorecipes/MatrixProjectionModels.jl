@@ -144,6 +144,7 @@
         @test to_discrete_problem === MatrixProjectionModels.StructuredPopulationCore.to_discrete_problem
         @test demographic_ensemble === MatrixProjectionModels.StructuredPopulationCore.demographic_ensemble
         @test remake === MatrixProjectionModels.SciMLBase.remake
+        @test set_state! === MatrixProjectionModels.StructuredPopulationCore.set_state!
         @test remake(prob; tspan = (0, 5)).tspan == (0, 5) && remake(prob; tspan = (0, 5)) isa CoupledMPMProblem
     end
 

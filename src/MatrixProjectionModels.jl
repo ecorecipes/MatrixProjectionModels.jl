@@ -12,7 +12,7 @@ using Statistics
 # Functions shared across the stack are extended here rather than redefined, so that their
 # names stay usable when several packages are loaded together: two verbs belong to
 # StructuredPopulationCore, `remake` to SciMLBase.
-import StructuredPopulationCore: demographic_ensemble, to_discrete_problem
+import StructuredPopulationCore: demographic_ensemble, to_discrete_problem, set_state!
 import SciMLBase: remake
 
 # --- Layer 1: Utility functions ---
