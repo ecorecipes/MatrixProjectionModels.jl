@@ -28,6 +28,14 @@ import StructuredPopulationCore: get_state, has_state, total_population, compone
 import StructuredPopulationCore: n_stages, allocate, supply_demand_index
 import StructuredPopulationCore: component_stage_names, validate_component_model
 import StructuredPopulationCore: _validate_fraction, _validate_nonnegative, _validate_stage
+# The engine that steps a coupled system is shared with IntegralProjectionModels.jl and also
+# lives in StructuredPopulationCore, unexported; its public names are exported below.
+import StructuredPopulationCore: AbstractDailySubstep, apply_substep!, StateUpdateSubstep,
+    CustomSubstep, StageFlux, StageTransfer, RuleEffect, AbstractTransitionRule, apply_rule,
+    CustomEvent, advance_coupled!, solve_coupled
+import StructuredPopulationCore: _substep_name, _rule_name, _event_name, _normalize_rule_effect,
+    _snapshot, _apply_rule_effects!, _normalize_components!, _copy_component, _copy_system,
+    _require_vector_carriers, _ensure_unique_names
 
 # --- Layer 1: Utility functions ---
 include("utils.jl")
