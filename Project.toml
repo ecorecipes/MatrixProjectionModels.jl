@@ -1,7 +1,7 @@
 name = "MatrixProjectionModels"
 uuid = "521f12cc-5854-454d-93a2-8be28ae7cee2"
 authors = ["Simon Frost"]
-version = "0.1.4"
+version = "0.2.0"
 
 [deps]
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -36,7 +36,7 @@ JLD2 = "0.6.3"
 KrylovKit = "0.10.2"
 Plots = "1"
 RecipesBase = "1"
-SciMLBase = "2"
+SciMLBase = "3.58"
 StructuredPopulationCore = "0.1.4"
 julia = "1.11"
 
