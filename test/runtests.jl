@@ -25,4 +25,5 @@ using Statistics
     include("test_time_lag.jl")
     include("test_demographic.jl")
     include("test_pbdm_migrations.jl")
+    include("test_resilience.jl")
 end
