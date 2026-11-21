@@ -9,6 +9,10 @@ using RecipesBase
 using SciMLBase
 using Statistics
 
+# Resilience operators: `linearise` is ResilienceCore's function, extended in resilience.jl.
+import ResilienceCore
+using ResilienceCore: linearise
+
 # Functions shared across the stack are extended here rather than redefined, so that their
 # names stay usable when several packages are loaded together: two verbs belong to
 # StructuredPopulationCore, `remake` to SciMLBase.
@@ -218,6 +222,10 @@ export TransitionSupplement, supplement!, supplement
 # --- Layer 16: SciML interface ---
 include("sciml_interface.jl")
 export to_discrete_problem
+
+# --- Layer 16b: resilience operators (ResilienceCore) ---
+include("resilience.jl")
+export linearise
 
 # --- Layer 17: Plotting ---
 include("plotting.jl")
