@@ -10,6 +10,7 @@ A Julia package for building and analyzing Matrix Projection Models (MPMs) — d
 - **Construction helpers**: Leslie and Lefkovitch matrices, mortality/fecundity models (Gompertz, Siler, Weibull, etc.), sparse transition syntax
 - **Time-lagged models**: `LaggedMPM` with state augmentation (Kuss et al. 2008)
 - **Stochastic models**: kernel-resampled and parameter-resampled stochasticity
+- **Resilience operators**: `linearise` (from [ResilienceCore.jl](https://github.com/ecorecipes/ResilienceCore.jl)) gives the projection operator of a density-independent, deterministic model, for ResilienceCore's stability and transient metrics
 - **COMPADRE integration**: load models from the COMPADRE Plant Matrix Database (via package extension)
 
 ## Quick Start
